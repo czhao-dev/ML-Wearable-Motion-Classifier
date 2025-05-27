@@ -45,10 +45,8 @@ The classifier was developed using motion data collected by an MPU-9150 sensor m
 - InvenSense MPU-9150 Product Specification
 - Wolfram MathWorld: Spherical Coordinates
 
-## Copyright and License
+## License
 
 This project is released for academic and research purposes. Please credit the source if used in publications or derivative works.
-
----
 
 **Note**: This repository is for research and prototyping purposes only. It is not approved for clinical use.
