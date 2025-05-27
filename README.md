@@ -1,4 +1,4 @@
-# Boston Climate Modeling using System Identification
+# Climate Modeling using System Identification and Machine Learning
 
 This project presents a study on modeling local climate patterns in Boston, Massachusetts, using system identification techniques. The project utilizes historical weather data and builds predictive models for precipitation (PRCP), snowfall (SNOW), and observed average temperature (TOBS) using several approaches, including linear models and advanced matrix decomposition methods.
 
