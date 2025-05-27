@@ -1,11 +1,3 @@
-% Name: Charles Zhao
-% UID: 504-138-548
-% EE 239AS From Data to System Identification
-% Spring Quarter 2017 Project
-% Topic: Climate modeling using system identification methods
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 % add path for the SLRA packet
 addpath(fullfile(cd, 'slra-slra-c3aa24c'));
 warning('off', 'all');
