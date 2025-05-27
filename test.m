@@ -1,7 +1,7 @@
 % addpath(fullfile(cd, 'slra-slra-c3aa24c'));
 % warning('off', 'all');
 % 
-% data_Reading = csvread('C:\Users\Charles\Desktop\962598.csv', 70136, 2, [70136, 2, 72082, 13]);
+% data_Reading = csvread('962598.csv', 70136, 2, [70136, 2, 72082, 13]);
 % 
 % cols2remove = [2 3 7 8 9];
 % data_Reading(:, cols2remove) = [];
