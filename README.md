@@ -60,4 +60,4 @@ The modeled data reflect a **humid continental climate**, as per Köppen classif
 
 ## License
 
-This project is intended for academic and research purposes.
+This project is released for academic and research purposes. Please credit the source if used in publications or derivative works.
