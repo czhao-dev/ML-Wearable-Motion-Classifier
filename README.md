@@ -1,4 +1,4 @@
-# Upper Body Motion Classifier Using WMFT
+# Upper Body Motion Classifier with Machine Learning
 
 This project focuses on motion classification of upper body movements using sensor data from the Wolf Motor Function Test (WMFT). It aims to classify motions using a trajectory-based approach and supports applications in wireless health and rehabilitation monitoring.
 
