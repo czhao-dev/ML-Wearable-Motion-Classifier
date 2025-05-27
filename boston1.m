@@ -5,7 +5,7 @@ warning('off', 'all');
 
 % read weather data from the file
 function [training_data, testing_data] = read_data()
-    data_Reading = csvread('C:\Users\Charles\Desktop\962598.csv', 70136, 2, [70136, 2, 72082, 13]);
+    data_Reading = csvread('962598.csv', 70136, 2, [70136, 2, 72082, 13]);
 
     % remove unnecessary columns
     % columns: DATE, PRCP, SNWD, SNOW, TMAX, TMIN, TOBS
