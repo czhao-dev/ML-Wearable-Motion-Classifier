@@ -1,0 +1,125 @@
+{
+  "project": "ML Climate Modeling",
+  "station": "READING MA US",
+  "data_path": "962598.csv",
+  "train_window": [
+    "2013-01-01",
+    "2015-12-31"
+  ],
+  "test_window": [
+    "2016-01-01",
+    "2016-12-31"
+  ],
+  "train_rows": 1095,
+  "test_rows": 366,
+  "models": {
+    "PRCP": {
+      "target_label": "Precipitation (inches)",
+      "feature_count": 20,
+      "features": [
+        "day_sin",
+        "day_cos",
+        "semiannual_sin",
+        "semiannual_cos",
+        "trend_years",
+        "PRCP_lag_1",
+        "PRCP_lag_7",
+        "PRCP_lag_30",
+        "PRCP_rolling_7",
+        "PRCP_rolling_30",
+        "SNOW_lag_1",
+        "SNOW_lag_7",
+        "SNOW_lag_30",
+        "SNOW_rolling_7",
+        "SNOW_rolling_30",
+        "TOBS_lag_1",
+        "TOBS_lag_7",
+        "TOBS_lag_30",
+        "TOBS_rolling_7",
+        "TOBS_rolling_30"
+      ],
+      "baseline": {
+        "mae": 0.1696265938069217,
+        "rmse": 0.3041713139351045,
+        "r2": -0.4188112624761775
+      },
+      "ridge_regression": {
+        "mae": 0.15299199903419194,
+        "rmse": 0.2585107866912498,
+        "r2": -0.024814964003830875
+      }
+    },
+    "SNOW": {
+      "target_label": "Snowfall (inches)",
+      "feature_count": 20,
+      "features": [
+        "day_sin",
+        "day_cos",
+        "semiannual_sin",
+        "semiannual_cos",
+        "trend_years",
+        "PRCP_lag_1",
+        "PRCP_lag_7",
+        "PRCP_lag_30",
+        "PRCP_rolling_7",
+        "PRCP_rolling_30",
+        "SNOW_lag_1",
+        "SNOW_lag_7",
+        "SNOW_lag_30",
+        "SNOW_rolling_7",
+        "SNOW_rolling_30",
+        "TOBS_lag_1",
+        "TOBS_lag_7",
+        "TOBS_lag_30",
+        "TOBS_rolling_7",
+        "TOBS_rolling_30"
+      ],
+      "baseline": {
+        "mae": 0.2686703096539162,
+        "rmse": 0.9337203205005256,
+        "r2": -0.7527184587053011
+      },
+      "ridge_regression": {
+        "mae": 0.31766708923128223,
+        "rmse": 0.7171011359594796,
+        "r2": -0.033806742969034076
+      }
+    },
+    "TOBS": {
+      "target_label": "Observed temperature (F)",
+      "feature_count": 20,
+      "features": [
+        "day_sin",
+        "day_cos",
+        "semiannual_sin",
+        "semiannual_cos",
+        "trend_years",
+        "PRCP_lag_1",
+        "PRCP_lag_7",
+        "PRCP_lag_30",
+        "PRCP_rolling_7",
+        "PRCP_rolling_30",
+        "SNOW_lag_1",
+        "SNOW_lag_7",
+        "SNOW_lag_30",
+        "SNOW_rolling_7",
+        "SNOW_rolling_30",
+        "TOBS_lag_1",
+        "TOBS_lag_7",
+        "TOBS_lag_30",
+        "TOBS_rolling_7",
+        "TOBS_rolling_30"
+      ],
+      "baseline": {
+        "mae": 7.994535519125683,
+        "rmse": 10.66080212189543,
+        "r2": 0.5687392775277982
+      },
+      "ridge_regression": {
+        "mae": 6.239011791026038,
+        "rmse": 8.17088313888316,
+        "r2": 0.7466632820776811
+      }
+    }
+  }
+}
