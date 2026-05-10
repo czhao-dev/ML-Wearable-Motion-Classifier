@@ -19,7 +19,7 @@ suburb, using historical daily observations from NOAA. The project predicts:
 The experiment uses 2013-2015 as the training window and calendar year 2016 as
 the test window.
 
-## Portfolio Highlights
+## Key Features
 
 - Reproducible Python training pipeline with no third-party runtime dependency.
 - NOAA CSV parsing, missing-value handling, and calendar-based train/test split.
@@ -111,10 +111,7 @@ python3 scripts/train_model.py \
 └── pyproject.toml               # Python project metadata
 ```
 
-## Next Steps
+## License
 
-- Add exogenous weather drivers such as pressure, wind, humidity, and regional
-  station observations.
-- Add a precipitation occurrence classifier before regression amount modeling.
-- Compare against scikit-learn tree ensembles in an optional dependency profile.
-- Package the data pipeline as a notebook or dashboard for more visual review.
+This project is licensed under the Apache License 2.0. See
+[`LICENSE`](LICENSE) for the full license text.
