@@ -6,6 +6,8 @@ __pycache__/
 .venv/
 *.egg-info/
 *.joblib
+!wmft_model.joblib
 features.csv
 *_features.csv
 synthetic_data/
+data/
