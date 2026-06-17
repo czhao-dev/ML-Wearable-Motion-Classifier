@@ -322,13 +322,25 @@ depth = 3
 attn_heads = 6
 embed_dim = 768
 
-train_transform = transforms.Compose([
+eval_transform = transforms.Compose([
     transforms.Resize((img_w, img_h)),
     transforms.ToTensor(),
     transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
 ])
-full_dataset = datasets.ImageFolder(dataset_path, transform=train_transform)
-test_loader = DataLoader(full_dataset, batch_size=batch_size, shuffle=False)
+
+# Reconstruct the held-out validation split used during PyTorch CNN-ViT hybrid
+# training (scripts/08_pytorch_cnn_vit_hybrid.py: SEED=7331, 80/20 random_split)
+# so this evaluation does not re-score images the model already trained on.
+PYTORCH_SPLIT_SEED = 7331
+base_dataset = datasets.ImageFolder(dataset_path)
+train_size = int(0.8 * len(base_dataset))
+val_size = len(base_dataset) - train_size
+split_generator = torch.Generator().manual_seed(PYTORCH_SPLIT_SEED)
+_, val_subset = random_split(base_dataset, [train_size, val_size], generator=split_generator)
+
+eval_dataset = datasets.ImageFolder(dataset_path, transform=eval_transform)
+eval_dataset = torch.utils.data.Subset(eval_dataset, val_subset.indices)
+test_loader = DataLoader(eval_dataset, batch_size=batch_size, shuffle=False)
 
 # Check device availability
 device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -432,12 +444,17 @@ keras_model = load_model(keras_model_path,
                          "TransformerBlock":     TransformerBlock
                           })
 
-datagen = ImageDataGenerator(rescale=1./255)
+# scripts/07_keras_cnn_vit_hybrid.py trained on validation_split=0.2; reuse the
+# same split here and only score the "validation" subset, which Keras carves out
+# by sorted file order (deterministic, independent of any random seed). Scoring
+# the full directory would re-evaluate images the model already trained on.
+datagen = ImageDataGenerator(rescale=1./255, validation_split=0.2)
 prediction_generator = datagen.flow_from_directory(
     dataset_path,
     target_size=(img_w, img_h),
     batch_size=batch_size,
     class_mode="binary",
+    subset="validation",
     shuffle=False
 )
 

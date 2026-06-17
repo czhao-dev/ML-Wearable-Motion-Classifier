@@ -34,14 +34,14 @@ Large local data files are kept out of Git. See `data/data.md` for setup notes.
 
 | Model | Accuracy | Precision | Recall | F1 Score | ROC-AUC |
 |---|---:|---:|---:|---:|---:|
-| Keras CNN | 0.9925 | 1.0000 | 0.9850 | 0.9924 | 1.0000 |
-| PyTorch CNN | 0.9988 | 0.9983 | 0.9993 | 0.9988 | 1.0000 |
-| Keras CNN-ViT Hybrid | 0.9958 | 0.9990 | 0.9927 | 0.9958 | 0.9998 |
-| PyTorch CNN-ViT Hybrid | 0.9990 | 0.9990 | 0.9990 | 0.9990 | 1.0000 |
+| Keras CNN | 0.9933 | 1.0000 | 0.9867 | 0.9933 | 1.0000 |
+| PyTorch CNN | 0.9983 | 0.9965 | 1.0000 | 0.9983 | 1.0000 |
+| Keras CNN-ViT Hybrid | 0.9942 | 0.9966 | 0.9917 | 0.9942 | 0.9991 |
+| PyTorch CNN-ViT Hybrid | 0.9967 | 0.9983 | 0.9950 | 0.9967 | 0.9999 |
 
-The PyTorch models achieved the strongest scores in these runs, with the final PyTorch CNN-ViT hybrid reaching 99.90% accuracy.
+The PyTorch models achieved the strongest scores in these runs, with the final PyTorch CNN-ViT hybrid reaching 99.67% accuracy.
 
-> **Methodology note:** These numbers come from evaluating each model over the full `images_dataSAT` dataset, which overlaps with the data used to train that model. They reflect fit quality on the full dataset rather than held-out generalization performance. See [Next Improvements](#next-improvements) for a planned held-out evaluation.
+> **Methodology note:** These numbers come from evaluating each model on its held-out validation split only (1,200 images, 20% of `images_dataSAT`) — the same split reserved during training and never seen by that model's weights. See [reports/results_summary.md](reports/results_summary.md) for details on how the split is reconstructed.
 
 ## Repository Structure
 

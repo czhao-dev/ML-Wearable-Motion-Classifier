@@ -15,12 +15,12 @@ Classify satellite image tiles into agricultural and non-agricultural land categ
 
 | Model | Accuracy | Precision | Recall | F1 Score | ROC-AUC | Loss |
 |---|---:|---:|---:|---:|---:|---:|
-| Keras CNN | 0.9925 | 1.0000 | 0.9850 | 0.9924 | 1.0000 | 0.0247 |
-| PyTorch CNN | 0.9988 | 0.9983 | 0.9993 | 0.9988 | 1.0000 | 0.0024 |
-| Keras CNN-ViT Hybrid | 0.9958 | 0.9990 | 0.9927 | 0.9958 | 0.9998 | 0.0530 |
-| PyTorch CNN-ViT Hybrid | 0.9990 | 0.9990 | 0.9990 | 0.9990 | 1.0000 | 0.0047 |
+| Keras CNN | 0.9933 | 1.0000 | 0.9867 | 0.9933 | 1.0000 | 0.0257 |
+| PyTorch CNN | 0.9983 | 0.9965 | 1.0000 | 0.9983 | 1.0000 | 0.0041 |
+| Keras CNN-ViT Hybrid | 0.9942 | 0.9966 | 0.9917 | 0.9942 | 0.9991 | 0.1138 |
+| PyTorch CNN-ViT Hybrid | 0.9967 | 0.9983 | 0.9950 | 0.9967 | 0.9999 | 0.0104 |
 
-> **Methodology note:** These metrics are computed by evaluating each model over the full `images_dataSAT` dataset (6,000 images), which overlaps with the data used to train that model. They reflect fit quality, not held-out generalization performance. A held-out evaluation is listed under Future Work.
+> **Methodology note:** These numbers come from evaluating each model on its held-out validation split only (1,200 images, 20% of `images_dataSAT`) — the same split reserved during training and never seen by that model's weights. `scripts/06_keras_vs_pytorch_cnn_comparison.py` and `scripts/09_final_cnn_vit_evaluation.py` reconstruct this split using the exact seed/`validation_split` parameters from the corresponding training script (`04`, `05`, `07`, `08`), so no training image is re-scored. Earlier versions of this table evaluated over the full 6,000-image dataset, which leaked training data into the metrics — the corrected numbers above are close to the old ones because the held-out split was already used for checkpoint selection during training, not because the leak didn't matter.
 
 ## Interpretation
 
