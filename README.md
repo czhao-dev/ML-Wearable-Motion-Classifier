@@ -1,5 +1,10 @@
 # ML Climate Modeling
 
+[![Python](https://img.shields.io/badge/python-3.10%2B-blue?logo=python&logoColor=white)](pyproject.toml)
+[![License: Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
+[![Dependencies](https://img.shields.io/badge/dependencies-none-success)](requirements.txt)
+[![Tests](https://img.shields.io/badge/tests-22%20passing-brightgreen)](tests)
+
 Forecasting Boston-area daily weather from NOAA station data with a clean,
 reproducible Python ML pipeline.
 
@@ -26,8 +31,10 @@ the test window.
 - Seasonal features, lag features, and rolling weather-history features.
 - Ridge regression implemented from scratch with feature standardization.
 - Seasonal climatology baseline for honest model comparison.
+- Model serialization (`reports/models.json`) for reuse without retraining.
 - Saved metrics and SVG plots for GitHub-friendly reporting.
-- Unit tests for modeling, metrics, splitting, and feature construction.
+- Unit tests for modeling, metrics, splitting, feature construction, and
+  serialization.
 
 ## Results
 
@@ -45,6 +52,19 @@ The strongest result is temperature forecasting: the ridge model explains about
 harder because they are sparse, event-driven processes; the ridge model improves
 RMSE over the seasonal baseline, but low R2 shows that local lag/seasonality
 features alone do not capture storm timing.
+
+### Test Suite
+
+```bash
+$ python3 -m unittest discover -s tests
+----------------------------------------------------------------------
+Ran 22 tests in 0.005s
+
+OK
+```
+
+22/22 tests pass, covering data cleaning, feature engineering, model fitting,
+metrics, SVG report generation, and model serialization round-trips.
 
 ### Forecast Figures
 
@@ -71,7 +91,7 @@ The maintained Python workflow is in [`src/climate_modeling`](src/climate_modeli
    - 7-day and 30-day rolling means
 5. Train a ridge regression model for each target.
 6. Compare against a seasonal day-of-year baseline.
-7. Save metrics and plots under `reports/`.
+7. Save metrics, fitted models, and plots under `reports/`.
 
 ## Reproduce
 
@@ -99,6 +119,29 @@ python3 scripts/train_model.py \
   --test-end 2016-12-31
 ```
 
+### Reusing Trained Models
+
+Training saves fitted models to [`reports/models.json`](reports/models.json),
+so you can load them for inference without retraining:
+
+```python
+from climate_modeling.train import load_models
+from climate_modeling.features import build_supervised_dataset
+
+models = load_models("reports/models.json")
+dataset = build_supervised_dataset(records, "TOBS", start, end)
+predictions = models["TOBS"]["ridge"].predict(dataset.features)
+```
+
+## Tech Stack
+
+- **Language:** Python 3.10+ (standard library only — `csv`, `dataclasses`,
+  `statistics`, `math`, `json`, `argparse`)
+- **Modeling:** Ridge regression and Gauss-Jordan linear solver implemented
+  from scratch
+- **Reporting:** Hand-rolled SVG chart generation, JSON metrics/model exports
+- **Testing:** `unittest` (standard library)
+
 ## Repository Layout
 
 ```text
@@ -107,7 +150,7 @@ python3 scripts/train_model.py \
 ├── src/climate_modeling/        # Maintained Python ML package
 ├── scripts/train_model.py       # Repo-root training entrypoint
 ├── tests/                       # Unit tests
-├── reports/                     # Generated metrics and SVG figures
+├── reports/                     # Generated metrics, models, and SVG figures
 └── pyproject.toml               # Python project metadata
 ```
 
