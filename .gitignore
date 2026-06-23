@@ -5,9 +5,11 @@ __pycache__/
 .ruff_cache/
 .venv/
 *.egg-info/
-*.joblib
-!wmft_model.joblib
-features.csv
-*_features.csv
-synthetic_data/
-data/
+
+# ml-wearable-motion-classifier-specific
+ml-wearable-motion-classifier/*.joblib
+!ml-wearable-motion-classifier/wmft_model.joblib
+ml-wearable-motion-classifier/features.csv
+ml-wearable-motion-classifier/*_features.csv
+ml-wearable-motion-classifier/synthetic_data/
+ml-wearable-motion-classifier/data/
