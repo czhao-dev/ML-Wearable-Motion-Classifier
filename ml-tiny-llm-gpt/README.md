@@ -139,8 +139,8 @@ These configurations are intentionally modest so that they can be trained and te
 Clone the repository:
 
 ```bash
-git clone https://github.com/czhao-dev/tiny-llm-gpt.git
-cd tiny-llm-gpt
+git clone https://github.com/czhao-dev/ml-tiny-llm-gpt.git
+cd ml-tiny-llm-gpt
 ```
 
 Create a virtual environment:
