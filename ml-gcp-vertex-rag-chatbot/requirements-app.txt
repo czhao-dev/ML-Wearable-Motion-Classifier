@@ -1,0 +1,15 @@
+chromadb==0.4.24
+docx2txt==0.8
+fastapi==0.112.2
+gradio==4.44.1
+huggingface-hub==0.36.2
+pydantic==2.9.2
+langchain==0.2.1
+langchain-community==0.2.1
+langchain-google-vertexai==1.0.4
+langchain-text-splitters==0.2.0
+google-cloud-aiplatform==1.52.0
+pypdf==4.3.1
+python-dotenv==1.0.1
+requests==2.32.3
+starlette==0.38.6

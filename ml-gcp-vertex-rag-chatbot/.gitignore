@@ -1,0 +1,31 @@
+# Claude Code local settings
+.claude/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Environments and credentials
+.env
+.venv/
+venv/
+env/
+
+# Local archives and OS noise
+[n]otebooks/
+*.[i]pynb
+.[i]pynb_checkpoints/
+.DS_Store
+
+# Local vector stores and generated artifacts
+chroma/
+chroma_db/
+*.sqlite3
+*.db
+outputs/
+dist/
+build/

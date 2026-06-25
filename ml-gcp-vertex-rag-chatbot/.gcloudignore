@@ -1,0 +1,11 @@
+.venv/
+__pycache__/
+.git/
+.env
+notebooks/
+scripts/
+chroma/
+chroma_db/
+*.ipynb
+.DS_Store
+migration_plan.md
