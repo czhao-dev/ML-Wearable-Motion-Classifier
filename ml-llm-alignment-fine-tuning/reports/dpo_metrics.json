@@ -1,0 +1,12 @@
+{
+  "technique": "Direct Preference Optimization (DPO)",
+  "model": "gpt2",
+  "dataset": "BarraHome/ultrafeedback_binarized",
+  "train_size": 300,
+  "eval_size": 80,
+  "mean_proxy_reward_base": 1.3834,
+  "mean_proxy_reward_dpo": 1.4439,
+  "eval_reward_accuracy": 0.699999988079071,
+  "eval_reward_margin": 0.26984110474586487,
+  "comparison_table": "| Prompt | Before | After |\n|---|---|---|\n| My favorite thing about cooking is | My favorite thing about cooking is that it's so easy to make. I've always loved the idea of making a dish that's easy to make, but | My favorite thing about cooking is that it's so easy to make. I've always loved the idea of making a dish that's easy to make, but |\n| The best advice I ever received was | The best advice I ever received was to go to the doctor and ask him if he was OK. He said, \"No, I'm fine.\" I said | The best advice I ever received was to go to the doctor and get a prescription. I was told that I was going to have to go to the hospital and |\n| When I think about the future, I | When I think about the future, I think about the future of the world. I think about the future of the world. I think about the future of the world | When I think about the future, I think about the future of the world. I think about the future of the world. I think about the future of the world |\n| The most important skill to learn is | The most important skill to learn is to be able to read the language.  The most important skill to learn is to be able to read the language. | The most important skill to learn is to be able to read the language.  The most important skill to learn is to be able to read the language. |\n| My day was made better when | My day was made better when I was able to get a job and I was able to get a job. I was able to get a job. I | My day was made better when I was able to get a job and get a job that I wanted to do. I was able to get a job that |"
+}

@@ -1,0 +1,9 @@
+{
+  "technique": "Reward Modeling",
+  "model": "gpt2",
+  "dataset": "Dahoas/synthetic-instruct-gptj-pairwise",
+  "train_size": 800,
+  "eval_size": 200,
+  "pairwise_ranking_accuracy": 0.96,
+  "n_eval_pairs": 200
+}

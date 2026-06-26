@@ -1,0 +1,20 @@
+{
+  "technique": "PPO RLHF",
+  "model": "lvwerra/gpt2-imdb",
+  "dataset": "stanfordnlp/imdb",
+  "dataset_size": 2000,
+  "policies": {
+    "POSITIVE": {
+      "mean_reward_before": 0.2393,
+      "mean_reward_after": 1.2705,
+      "n_ppo_steps": 25,
+      "sample_before_after_table": "| Prompt | Before | After |\n|---|---|---|\n| This film is actually |  very difficult to believe; if you fancy |  great and a must see for |\n| Human pot | -smoking man, while Arkansas is somewhere near being one of |  fans.\" (International viewer ratio -- 28:\u008560:\u0085 |\n| Boasting |  major riska girls getting their minds |  less Kass lechery and more story, bigger and betterming it |"
+    },
+    "NEGATIVE": {
+      "mean_reward_before": -0.318,
+      "mean_reward_after": 0.5556,
+      "n_ppo_steps": 25,
+      "sample_before_after_table": "| Prompt | Before | After |\n|---|---|---|\n| This film is actually |  pretty funny, and completely realistic (people |  some of the worst film Shooter |\n| Human pot | heads who can offer random overdose buffs and whether it is their |  shots,that's everywhere Superman, backwater Queen of Queen of Circin |\n| Boasting |  on personal interests, she went out |  \"better\" to just \"impere\" the characters, |"
+    }
+  }
+}

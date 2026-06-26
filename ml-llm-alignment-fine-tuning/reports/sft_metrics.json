@@ -1,0 +1,10 @@
+{
+  "technique": "Instruction Fine-Tuning (SFT + LoRA)",
+  "model": "facebook/opt-350m",
+  "dataset": "CodeAlpaca-20k",
+  "train_size": 500,
+  "eval_size": 40,
+  "sacrebleu_base": 2.23,
+  "sacrebleu_lora": 1.35,
+  "sample_before_after_table": "| Prompt | Before | After |\n|---|---|---|\n| ### Instruction: Create an array of the first 10 natural numbers in JavaScript.  ### Response:  |  ### Response:  ### Response:  ### Response:  ### Response:  ### Response:  ### Response:  ### Response:  ### Response:  | def first_10_natural_numbers(n):                             |\n| ### Instruction: Write a Java program to print out all possible combinations of the numbers from 0 to 9  ### Response:  |  ### Instruction: Write a Java program to print out all possible combinations of the numbers from 0 to 9  ### Response:  ### Instruction: Write a Java program to print out | java.lang.String = \"1\" java.lang.String.print(String.length) java.lang.String.print(String.length) java.lang. |\n| ### Instruction: Code a function that prints out the characters of a string one by one.  ### Response:  | The function prints out the characters of a string one by one.  ### Description: The function prints out the characters of a string one by one.  ### Description: The function | def print(string):                                    |"
+}
