@@ -304,12 +304,12 @@ def _parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Train LSTM and Transformer weather forecasters."
     )
-    parser.add_argument("--data", default="962598.csv")
-    parser.add_argument("--station", default="READING MA US")
-    parser.add_argument("--train-start", default="2012-01-01")
-    parser.add_argument("--train-end", default="2016-12-31")
-    parser.add_argument("--test-start", default="2017-01-01")
-    parser.add_argument("--test-end", default="2017-12-31")
+    parser.add_argument("--data", default="4344212.csv")
+    parser.add_argument("--station", default="READING, MA US")
+    parser.add_argument("--train-start", default="1960-01-01")
+    parser.add_argument("--train-end", default="2017-12-31")
+    parser.add_argument("--test-start", default="2018-01-01")
+    parser.add_argument("--test-end", default="2019-12-31")
     parser.add_argument("--lookback", type=int, default=60)
     parser.add_argument("--horizon", type=int, default=7)
     parser.add_argument("--epochs", type=int, default=150)

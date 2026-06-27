@@ -41,15 +41,17 @@ def load_station_records(
 
     with path.open(newline="", encoding="utf-8") as handle:
         reader = csv.DictReader(handle)
+        # Support both old CDO format (STATION_NAME) and new CDO format (NAME)
+        name_col = "NAME" if "NAME" in (reader.fieldnames or []) else "STATION_NAME"
         for row in reader:
-            if row["STATION_NAME"].strip() != station_name:
+            if row[name_col].strip() != station_name:
                 continue
 
             values = {column: _parse_float(row.get(column)) for column in WEATHER_COLUMNS}
             raw_records.append(
                 WeatherRecord(
                     station=row["STATION"].strip(),
-                    station_name=row["STATION_NAME"].strip(),
+                    station_name=row[name_col].strip(),
                     date=_parse_date(row["DATE"]),
                     values=_clean_precipitation(values),
                 )
@@ -88,6 +90,9 @@ def parse_iso_date(value: str) -> date:
 
 
 def _parse_date(value: str) -> date:
+    # Support both YYYYMMDD (old CDO export) and YYYY-MM-DD (new CDO export)
+    if "-" in value:
+        return datetime.strptime(value, "%Y-%m-%d").date()
     return datetime.strptime(value, "%Y%m%d").date()
 
 

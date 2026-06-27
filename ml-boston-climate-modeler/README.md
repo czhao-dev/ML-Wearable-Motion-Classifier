@@ -23,8 +23,9 @@ using 6 years of NOAA station history:
 
 **v0.1** uses 2013–2015 for training and 2016 for testing (one-day-ahead ridge
 regression, stdlib-only).  
-**v0.2** extends to 2012–2016 training with 2017 testing and adds 7-day
-multi-output deep learning models built from raw TensorFlow ops.
+**v0.2** uses 1960–2017 for training (58 years, 20 974 windows) and 2018–2019
+for testing, with 7-day multi-output deep learning models built from raw
+TensorFlow ops.
 
 ## Key Features
 
@@ -56,26 +57,31 @@ Temperature forecasting (R² = 0.747) is strong. Precipitation and snowfall are
 sparse, event-driven processes — Ridge beats the seasonal baseline on RMSE but
 lag/seasonality features alone cannot capture storm timing.
 
-### Deep Learning (v0.2 — 7-day-ahead multi-step, 2017 test)
+### Deep Learning (v0.2 — 7-day-ahead multi-step, 2018–2019 test)
 
-Metrics saved to [`reports/metrics_tf.json`](reports/metrics_tf.json).
+Trained on **1960–2017** (58 years, 20 974 sliding windows). Metrics saved to
+[`reports/metrics_tf.json`](reports/metrics_tf.json).
 Results are averaged across **all 7 forecast horizons** (days 1–7 ahead) and
-all 113 test windows.
+all 717 test windows.
 
 | Target | LSTM RMSE | LSTM R² | Transformer RMSE | Transformer R² |
 |---|---:|---:|---:|---:|
-| PRCP | 0.318 | −0.012 | 0.319 | −0.018 |
-| SNOW | 1.631 | −0.043 | 1.648 | −0.065 |
-| TOBS | 15.832 | −0.611 | 16.042 | −0.654 |
+| PRCP | 0.341 | −0.003 | 0.341 | −0.005 |
+| SNOW | 1.256 | +0.014 | 1.272 | −0.010 |
+| TOBS | 10.535 | +0.639 | **9.718** | **+0.693** |
 
-> **Important: these tables measure different tasks.**
-> Ridge predicts **1 day ahead** on the 2016 test set.
-> LSTM and Transformer predict **days 1–7 ahead simultaneously** on 2017
-> test data — a fundamentally harder problem where errors accumulate with
-> horizon.  Both models converged in ~18–31 epochs (early stopping, patience=15)
-> with nearly identical best validation losses (≈ 0.389 normalised MSE).
-> For a fair comparison, run `scripts/train_tf_models.py --horizon 1` to
-> evaluate the deep learning models on the 1-day-ahead sub-task.
+The Transformer outperforms the LSTM on temperature (R² 0.693 vs 0.639),
+suggesting its attention mechanism captures longer-range seasonal structure
+better than recurrent state. Both models converged with early stopping
+(LSTM epoch 17 · Transformer epoch 25). PRCP and SNOW R² near zero is
+expected — precipitation is a sparse, event-driven process that resists
+pure sequence-to-sequence regression.
+
+> **Note on comparability:** Ridge predicts **1 day ahead** on the 2016 test
+> set. LSTM and Transformer predict **days 1–7 ahead simultaneously** on
+> 2018–2019 — a harder task where errors accumulate with horizon. For a
+> direct 1-day-ahead comparison run
+> `scripts/train_tf_models.py --horizon 1`.
 
 ### Forecast Figures
 
