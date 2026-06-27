@@ -4,6 +4,8 @@
 ![Python](https://img.shields.io/badge/python-3.13-blue)
 ![TensorFlow](https://img.shields.io/badge/TensorFlow-2.21-orange)
 ![PyTorch](https://img.shields.io/badge/PyTorch-2.12-red)
+![FastAPI](https://img.shields.io/badge/FastAPI-inference%20server-009688)
+![Docker](https://img.shields.io/badge/Docker-compose-2496ED)
 
 Binary classification of satellite image tiles as **agricultural** or **non-agricultural** land, implemented end-to-end in both Keras/TensorFlow and PyTorch. The project progresses from data-loading experiments through CNN baselines to CNN–Vision Transformer hybrids that combine local feature extraction with global attention, with parallel evaluation across both frameworks at every stage.
 
@@ -13,6 +15,7 @@ Binary classification of satellite image tiles as **agricultural** or **non-agri
 - [Dataset](#dataset)
 - [Approach](#approach)
 - [Results](#results)
+- [Inference Server](#inference-server)
 - [Repository Structure](#repository-structure)
 - [Getting Started](#getting-started)
 - [Project Background](#project-background)
@@ -25,6 +28,7 @@ Binary classification of satellite image tiles as **agricultural** or **non-agri
 - Parallel Keras and PyTorch implementations for data pipelines, CNN baselines, and CNN-ViT hybrids
 - Cross-framework evaluation using accuracy, precision, recall, F1, ROC-AUC, loss, and confusion matrices
 - Held-out validation methodology: an earlier version of this project scored models against the full training set; the evaluation pipeline was corrected to score only each model's untouched validation split (see [Results](#results))
+- FastAPI inference server serving all four models via a `?model=` query parameter, with Docker Compose for one-command deployment
 
 ## Dataset
 
@@ -62,6 +66,49 @@ The PyTorch models edged out their Keras counterparts in these runs, with the Py
 
 > **Methodology note:** These numbers come from evaluating each model on its held-out validation split only (1,200 images, 20% of `images_dataSAT`) — the same split reserved during training and never seen by that model's weights. See [`reports/results_summary.md`](reports/results_summary.md) for the full writeup, including how that split is reconstructed and an earlier methodology issue (full-dataset evaluation leaking training images into the metrics) that this corrects.
 
+## Inference Server
+
+A FastAPI server in `serve/` loads all four trained models at startup and exposes three endpoints:
+
+| Endpoint | Method | Description |
+|---|---|---|
+| `/health` | GET | Server status, loaded models, uptime |
+| `/models` | GET | All four models with availability flags |
+| `/predict` | POST | Classify an image; select model via `?model=` |
+
+Supported `model` values: `pytorch_vit` (default), `pytorch_cnn`, `keras_vit`, `keras_cnn`.
+
+### Run with Docker Compose
+
+```bash
+# Place trained model weights in models/trained/ first (see models/models.md)
+docker compose up --build
+```
+
+### Run locally
+
+```bash
+pip install -r serve/requirements.txt
+uvicorn serve.app:app --host 0.0.0.0 --port 8000
+```
+
+### Example request
+
+```bash
+# Classify a tile with the PyTorch CNN-ViT hybrid (default)
+curl -X POST "http://localhost:8000/predict?model=pytorch_vit" \
+     -F "file=@tile.jpg"
+
+# Response
+{
+  "model": "pytorch_vit",
+  "prediction": "agricultural",
+  "confidence": 0.9973,
+  "class_id": 1,
+  "latency_ms": 18.42
+}
+```
+
 ## Repository Structure
 
 ```text
@@ -83,11 +130,21 @@ The PyTorch models edged out their Keras counterparts in these runs, with the Py
 │   ├── 07_keras_cnn_vit_hybrid.py
 │   ├── 08_pytorch_cnn_vit_hybrid.py
 │   └── 09_final_cnn_vit_evaluation.py
+├── serve/
+│   ├── app.py                  # FastAPI application
+│   ├── model_registry.py       # Model loading and caching
+│   ├── pytorch_models.py       # PyTorch model class definitions
+│   ├── keras_custom_layers.py  # Custom Keras layers (auto-registers on import)
+│   ├── preprocessing.py        # Per-backend image preprocessing
+│   ├── schemas.py              # Pydantic request/response types
+│   ├── Dockerfile
+│   └── requirements.txt
 ├── src/
 │   ├── config.py
 │   ├── data_utils.py
 │   ├── metrics.py
 │   └── visualization.py
+├── docker-compose.yml
 ├── LICENSE
 ├── README.md
 └── requirements.txt
@@ -127,12 +184,12 @@ This project began as an IBM/Coursera deep learning capstone sequence. It has si
 
 ## Future Work
 
-- Add a standalone inference script for classifying a new satellite tile
 - Validate on a geographically distinct holdout set, beyond the same-distribution validation split used today
 - Add Grad-CAM or attention visualizations for interpretability
 - Export selected plots from model runs into `reports/figures/`
-- Package the best model behind a small Streamlit demo
-- Track experiments with a reproducible configuration file
+- Track experiments with MLflow or Weights & Biases
+- Add a batch `/predict/batch` endpoint to the inference server
+- Add Prometheus metrics (request count, latency histogram) to the server
 
 ## License
 

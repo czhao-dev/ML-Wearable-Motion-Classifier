@@ -1,0 +1,13 @@
+services:
+  classifier:
+    build:
+      context: .
+      dockerfile: serve/Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      # Mount trained model weights read-only; keep large binaries out of the image
+      - ./models/trained:/app/models/trained:ro
+    environment:
+      MODEL_DIR: /app/models/trained
+    restart: unless-stopped
