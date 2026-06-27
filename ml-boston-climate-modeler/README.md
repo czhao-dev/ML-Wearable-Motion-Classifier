@@ -13,7 +13,7 @@ for 7-day multi-step forecasting.
 ## Project Goal
 
 Predict three daily weather variables for Reading, Massachusetts (a Boston suburb)
-using 6 years of NOAA station history:
+using up to 60 years of NOAA station history:
 
 | Variable | Description |
 |---|---|
@@ -99,10 +99,10 @@ pure sequence-to-sequence regression.
 
 ```mermaid
 flowchart TD
-    A["NOAA Daily CSV\nGHCN-D · Reading MA US\n2012–2017"] --> B["Parse & Clean\nFilter station · Reconstruct temps\nZero-fill precip/snow/snow-depth"]
+    A["NOAA Daily CSV\nGHCN-D · Reading MA US\n1960–2019"] --> B["Parse & Clean\nFilter station · Reconstruct temps\nZero-fill precip/snow/snow-depth"]
     B --> C["Sliding-Window Dataset\n9 features · lookback=60 days\nhorizon=7 days · z-score normalisation"]
-    C --> D["Train split\n2012–2016 · ~1 768 windows"]
-    C --> E["Test split\n2017 · ~113 windows"]
+    C --> D["Train split\n1960–2017 · ~20 974 windows"]
+    C --> E["Test split\n2018–2019 · ~717 windows"]
     D --> F["LSTM Forecaster\n2× LSTMCell · hidden=64\ntf.GradientTape · Adam"]
     D --> G["Transformer Forecaster\n3× encoder block · d_model=32\nMultiHeadAttention · GELU FFN"]
     F --> H["7-Day Forecast\nPRCP · SNOW · TOBS"]
@@ -127,7 +127,8 @@ flowchart TD
 
 ```text
 ml-boston-climate-modeler/
-├── 962598.csv                        NOAA daily weather export (Reading MA US)
+├── 962598.csv                        Legacy NOAA export (Reading MA US, 2012–2017)
+├── 4344212.csv                       NOAA GHCN-D export (Reading MA US, 1960–2019)
 ├── src/climate_modeling/
 │   ├── data.py                       CSV loading, cleaning, train/test split
 │   ├── features.py                   Lag + seasonal features for Ridge pipeline
@@ -232,13 +233,13 @@ from climate_modeling.sequence_dataset import build_sequence_dataset
 from climate_modeling.tf_models import LSTMForecaster
 from climate_modeling.tf_trainer import load_weights, evaluate_model
 
-records = load_station_records("962598.csv")
+records = load_station_records("4344212.csv", station="READING, MA US")
 X_tr, y_tr, X_te, y_te, scaler = build_sequence_dataset(
     records,
-    train_start=parse_iso_date("2012-01-01"),
-    train_end=parse_iso_date("2016-12-31"),
-    test_start=parse_iso_date("2017-01-01"),
-    test_end=parse_iso_date("2017-12-31"),
+    train_start=parse_iso_date("1960-01-01"),
+    train_end=parse_iso_date("2017-12-31"),
+    test_start=parse_iso_date("2018-01-01"),
+    test_end=parse_iso_date("2019-12-31"),
 )
 
 lstm = LSTMForecaster(hidden_size=64, n_layers=2, horizon=7)
