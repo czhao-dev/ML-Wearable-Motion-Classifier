@@ -20,6 +20,19 @@ The system is intended for research and prototyping in rehabilitation monitoring
 - Trains tabular ML classifiers using scikit-learn: SVM, random forest, histogram gradient boosting, or a soft-voting ensemble.
 - Includes tooling to augment a small real dataset with synthetic variants, and to evaluate those variants without leaking source-trial information across cross-validation folds.
 
+## Pipeline
+
+```mermaid
+flowchart TD
+    A["Raw IMU Recording\n(accelerometer · gyroscope · quaternion)"] --> B["Sensor Preprocessing\nFrame alignment · Gravity subtraction · ZUPT"]
+    B --> C["Wrist Trajectory\nPosition reconstruction"]
+    C --> D["Feature Extraction\nVertical power · Azimuth rotation\nPeak counts · Path length · Variance"]
+    D --> E["Rule-Based Classifier\n(deterministic baseline)"]
+    D --> F["scikit-learn Model\nSVM · Random Forest · HGB · Ensemble"]
+    E --> G["Movement Class\n(WMFT task label)"]
+    F --> G
+```
+
 ## Repository Layout
 
 ```text

@@ -78,6 +78,17 @@ Additional generated charts:
 
 ## Methodology
 
+```mermaid
+flowchart TD
+    A["NOAA Daily CSV\nGHCN-D · Reading MA US"] --> B["Parse & Clean\nFilter station · Reconstruct missing temps\nZero-fill precip/snow gaps"]
+    B --> C["Feature Engineering\nSeasonal sine/cosine · Long-term trend\nLag 1/7/30d · Rolling mean 7/30d"]
+    C --> D["Train/Test Split\n2013–2015 train · 2016 test\ncalendar split · no lookahead"]
+    D --> E["Ridge Regression\nGradient descent from scratch\nFeature standardization · no ML deps"]
+    E --> F["Serialized Model\nreports/models.json"]
+    F --> G["One-Day-Ahead Forecast\nTOBS · PRCP · SNOW"]
+    G --> H["Evaluation\nRMSE · MAE · R²\nvs. seasonal climatology baseline"]
+```
+
 The maintained Python workflow is in [`src/climate_modeling`](src/climate_modeling).
 
 1. Load the NOAA CSV export and filter to `READING MA US`.

@@ -75,6 +75,21 @@ Downloaded via `scripts/download_movielens.py` into `data/movielens/ml-latest-sm
 
 ## Approach
 
+```mermaid
+flowchart TD
+    subgraph S1 ["Stage 1 — Graph Feature Engineering (igraph)"]
+        A["IMDb Filmography Data"] --> B["Actor–Actor Graph\nweighted by shared movies\nPageRank actor scores"]
+        A --> C["Movie–Movie Graph\nJaccard cast similarity\nFast Greedy Newman communities"]
+        B & C --> D["Node Feature Matrix\nPageRank · degree · community · genre"]
+    end
+    subgraph S2 ["Stage 2 — Heterogeneous GNN (PyTorch Geometric)"]
+        D --> E["HeteroData Graph\nactor + movie nodes\nco_appeared · similar_to · acted_in edges"]
+        E --> F["HeteroConv Encoder\nGraphConv for weighted edges\nSAGEConv for bipartite edges"]
+        F --> G["IMDb Track\nRatingDecoder → movie rating\nRMSE vs. heuristic baselines"]
+        F --> H["MovieLens Track\nEdgeRatingDecoder → user–movie score\nPrecision/Recall/NDCG@K"]
+    end
+```
+
 ### Stage 1: Graph Feature Engineering (igraph, unchanged)
 
 - **Actor network**: directed, weighted actor-actor graph (edge weight = normalized shared-movie count); **PageRank** ranks actor influence.

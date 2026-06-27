@@ -52,6 +52,19 @@ See [`data/data.md`](data/data.md) for sources and dataset sizes used.
 
 **Cross-technique summary** ([`05_summarize_results.py`](scripts/05_summarize_results.py)): collects each script's saved metrics and renders the comparison figure used below.
 
+```mermaid
+flowchart LR
+    A["Pretrained Base Models\nfacebook/opt-350m · GPT-2"]
+    A --> B["SFT + LoRA\nSFTTrainer · CodeAlpaca-20k\nInstruction following"]
+    B --> B1["SacreBLEU: 2.23→2.35"]
+    A --> C["Reward Modeling + LoRA\nRewardTrainer\nChosen/rejected pairs"]
+    C --> C1["0.96 pairwise ranking acc."]
+    A --> D["PPO RLHF\nPPOTrainer · Sentiment reward\ngpt2-imdb policy"]
+    D --> D1["Mean reward 0.24→1.27"]
+    A --> E["DPO + LoRA\nDPOTrainer\nNo RL loop or reward model"]
+    E --> E1["0.70 reward accuracy"]
+```
+
 ## Results
 
 ### Instruction Fine-Tuning (SFT + LoRA)

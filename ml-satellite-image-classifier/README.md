@@ -53,6 +53,38 @@ Large local data files are kept out of Git. See [`data/data.md`](data/data.md) f
 
 **CNN-ViT hybrid** ([`07_keras_cnn_vit_hybrid.py`](scripts/07_keras_cnn_vit_hybrid.py), [`08_pytorch_cnn_vit_hybrid.py`](scripts/08_pytorch_cnn_vit_hybrid.py)): reuses the trained CNN's convolutional backbone as a feature extractor, flattens its output feature map into a token sequence, adds learned positional embeddings, and feeds the tokens through a multi-head self-attention Transformer encoder before a classification head. This combines the CNN's local texture sensitivity with the Transformer's ability to model longer-range spatial relationships — useful for land-use imagery where field boundaries and broader layout patterns matter alongside fine-grained texture.
 
+### Model Architecture
+
+```mermaid
+flowchart TD
+    A["Input: 64×64 RGB Tile"] --> B["Data Augmentation\nRotation · Shift · Shear · Zoom · Flip"]
+    B --> C["CNN Backbone\n6 × Conv-BN-ReLU-MaxPool\n32→64→128→256→512→1024 ch"]
+    C -->|"CNN models"| D["Global Avg Pool + Flatten\n→ Dense head → 2 classes"]
+    C -->|"ViT models"| E["Feature Map → Token Sequence\n+ Learned Positional Embedding"]
+    E --> F["Transformer Encoder\nMulti-Head Self-Attention × N\nLayerNorm + Residual Connections"]
+    F --> G["CLS Token → Dense head → 2 classes"]
+    D --> H["Prediction: agricultural / non-agricultural"]
+    G --> H
+```
+
+Both CNN and ViT paths are implemented independently in **Keras/TensorFlow** and **PyTorch** — four models total.
+
+### Inference Server Architecture
+
+```mermaid
+flowchart LR
+    A["POST /predict\nimage upload"] --> B["FastAPI serve/app.py\nlifespan startup"]
+    B --> C["ModelRegistry\n4 models loaded at startup"]
+    C --> D["keras_cnn\nkeras_vit"]
+    C --> E["pytorch_cnn\npytorch_vit"]
+    D --> F["Preprocess: pixels ÷ 255\nshape 1×64×64×3"]
+    E --> G["Preprocess: ImageNet normalize\nshape 1×3×64×64"]
+    F --> H["Keras .predict"]
+    G --> I["torch.no_grad forward"]
+    H --> J["JSON Response\nprediction · confidence · latency_ms"]
+    I --> J
+```
+
 ## Results
 
 | Model | Accuracy | Precision | Recall | F1 Score | ROC-AUC |

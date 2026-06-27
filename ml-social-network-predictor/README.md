@@ -24,6 +24,19 @@ The repository is organized as a reproducible portfolio project. It includes a m
 - DeepWalk-style node embeddings trained with a hand-rolled PyTorch skip-gram model
 - Link-prediction classifiers (scikit-learn) comparing learned embeddings against the existing graph heuristics
 
+```mermaid
+flowchart TD
+    A["Edge List\nFacebook / Google+ graph"] --> B["Graph Construction\nigraph · 4,039 nodes · 88,234 edges"]
+    B --> C["Structural Analysis\nDegree dist · Ego networks\nEmbeddedness · Dispersion"]
+    B --> D["Community Detection\nFast-Greedy · Edge-Betweenness\nInfomap · Walktrap"]
+    B --> E["Hold Out Test Edges\n1,000 edges withheld\nbefore any graph operation"]
+    E --> F["DeepWalk Embeddings\nRandom walks → skip-gram\nPyTorch · trained on training graph only"]
+    E --> G["Heuristic Features\nCommon neighbors · Jaccard\nEmbeddedness · Dispersion · Community"]
+    F --> H["Logistic Regression Classifiers\nheuristics-only · embeddings-only · combined"]
+    G --> H
+    H --> I["ROC-AUC · Precision · Recall\n0.986 AUC (embeddings-only)"]
+```
+
 ## Link Prediction & Node Embeddings
 
 A second, optional pipeline (`run_link_prediction.py`) extends the structural analysis above into a predictive task: given the graph with some friendships held out, can we predict which pairs of people are actually connected?

@@ -50,6 +50,18 @@ Large local data files are kept out of Git. See [`data/data.md`](data/data.md) f
 
 Both models train on an 800-image training split with on-the-fly augmentation (width/height shift, horizontal flip) and a 200-image validation split, then get evaluated together in [`04_evaluate_models.py`](scripts/04_evaluate_models.py) on the full 200-image held-out test set.
 
+```mermaid
+flowchart TD
+    A["Input Image\n64×64 RGB · organic or recyclable"] --> B["VGG16 Backbone\nImageNet pretrained\nConv blocks 1–5"]
+    B --> C{Training Mode}
+    C -->|"Feature Extraction"| D["Frozen backbone\nall weights fixed"]
+    C -->|"Fine-Tuning"| E["block5_conv3 onward unfrozen\nadapts to dataset textures"]
+    D --> F["Classification Head\nDense 512 · Dropout×2 · Dense 1 · Sigmoid"]
+    E --> F
+    F --> G["Binary Prediction\nOrganic · Recyclable"]
+    G --> H["Evaluation on 200-image held-out test set\nAccuracy · F1 · ROC-AUC"]
+```
+
 ## Results
 
 | Model | Accuracy | Precision | Recall | F1 Score | ROC-AUC |
