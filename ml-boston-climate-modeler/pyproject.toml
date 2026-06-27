@@ -4,13 +4,16 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ml-climate-modeling"
-version = "0.1.0"
-description = "Dependency-free Python ML pipeline for modeling Boston-area daily climate patterns from NOAA station data."
+version = "0.2.0"
+description = "Python ML pipeline for modeling Boston-area daily climate patterns from NOAA station data, including pure-TensorFlow LSTM and Transformer time-series forecasters."
 readme = "README.md"
 requires-python = ">=3.10"
 license = {file = "LICENSE"}
-keywords = ["machine-learning", "weather", "climate", "time-series", "ridge-regression"]
-dependencies = []
+keywords = ["machine-learning", "weather", "climate", "time-series", "ridge-regression", "lstm", "transformer", "tensorflow"]
+dependencies = [
+    "tensorflow>=2.14.0",
+    "numpy>=1.24.0",
+]
 
 [project.scripts]
 climate-model = "climate_modeling.train:main"

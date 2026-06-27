@@ -16,7 +16,7 @@ A monorepo of nine end-to-end machine learning projects spanning computer vision
 | [ml-social-network-predictor](#ml-social-network-predictor) | Graph ML | igraph, PyTorch | DeepWalk embeddings reach 0.986 ROC-AUC on 4,039-node Facebook graph |
 | [ml-wearable-motion-classifier](#ml-wearable-motion-classifier) | Classical ML | scikit-learn, NumPy, SciPy | IMU → trajectory → ensemble classifier for clinical rehabilitation |
 | [ml-recyclable-material-classifier-vgg16](#ml-recyclable-material-classifier-vgg16) | Computer Vision | Keras/TF, VGG16 | Transfer learning; caught and fixed training-on-test bug from source notebook |
-| [ml-boston-climate-modeler](#ml-boston-climate-modeler) | Time-Series | Python (no ML deps) | Ridge regression from scratch; 22 unit tests; zero third-party runtime deps |
+| [ml-boston-climate-modeler](#ml-boston-climate-modeler) | Time-Series | TensorFlow, Python | Pure-TF LSTM + Transformer from scratch (no Keras); 7-day multi-step forecasting; 56 unit tests |
 
 ---
 
@@ -127,14 +127,16 @@ Binary classification of organic vs. recyclable material images using VGG16 tran
 
 ### ml-boston-climate-modeler
 
-Daily weather forecasting for Reading, MA (Boston suburb) from NOAA station data, with zero third-party ML library dependencies.
+Daily weather forecasting for Reading, MA (Boston suburb) from NOAA station data — two complete pipelines in one repo: a stdlib-only Ridge baseline and a pure-TensorFlow deep learning stack.
 
-- **Pipeline:** NOAA CSV parsing → missing-value handling → seasonal, lag, and rolling-window feature construction → Ridge regression implemented from scratch (gradient descent + feature standardization) → model serialization to JSON for reuse without retraining.
-- **Results:** Temperature RMSE drops from 10.66 (seasonal climatology baseline) to 8.17 (Ridge), explaining ~75% of held-out 2016 temperature variance (R² = 0.747). Precipitation and snowfall improve RMSE over the baseline but remain limited by event sparsity.
-- **Testing:** 22 unit tests covering modeling, metrics, calendar-based train/test splitting, feature construction, and serialization.
-- No NumPy, scikit-learn, or any third-party ML library in the runtime path.
+- **Ridge baseline (v0.1):** NOAA CSV parsing → missing-value handling → seasonal, lag, and rolling-window feature engineering → Ridge regression from scratch (Gauss-Jordan solver, no NumPy) → model serialization to JSON. Temperature R² = 0.747 on 2016 test set.
+- **LSTM forecaster (v0.2):** 2-layer stacked `LSTMCell` unrolled with `tf.unstack`; all gate weights as raw `tf.Variable`; trained with `tf.GradientTape` and a hand-built Adam optimiser. Predicts PRCP, SNOW, and TOBS jointly 7 days ahead.
+- **Transformer forecaster (v0.2):** Pre-norm encoder with sinusoidal positional encoding, `MultiHeadAttention` (Q/K/V projections as `tf.Variable`, scaled dot-product via `tf.linalg.matmul`), GELU feed-forward blocks, and mean pooling. **No `tf.keras` API used anywhere.**
+- **Training infrastructure:** `tf.GradientTape` mini-batch loop, `tf.clip_by_global_norm` gradient clipping, temporal validation split, early stopping. Both models converge to the same best validation loss (≈ 0.389 normalised MSE) — a notable finding in the data-limited regime.
+- **Notebook:** `notebooks/climate_exploration.ipynb` covers EDA, training loss curves, attention heatmap visualisation for each encoder block, and a four-model comparison.
+- **Testing:** 56 unit tests across data cleaning, feature engineering, sequence windowing, scaler round-trips, TF primitive shapes, and weight serialisation.
 
-**Stack:** Python (standard library only at runtime)
+**Stack:** Python · TensorFlow 2.14+ (`tf.Module` / `tf.Variable` / `tf.GradientTape`) · NumPy · Jupyter · Matplotlib
 
 ---
 
@@ -145,6 +147,12 @@ Papers and resources that directly informed the techniques used across these pro
 **Transformers and attention**
 - Vaswani, A., et al. "Attention Is All You Need." *NeurIPS*, 2017. [arxiv.org/abs/1706.03762](https://arxiv.org/abs/1706.03762)
 - Dosovitskiy, A., et al. "An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale." *ICLR*, 2021. [arxiv.org/abs/2010.11929](https://arxiv.org/abs/2010.11929) *(ml-satellite-image-classifier)*
+
+**Recurrent networks and time-series forecasting**
+- Hochreiter, S., and Schmidhuber, J. "Long Short-Term Memory." *Neural Computation*, 9(8):1735–1780, 1997. [doi.org/10.1162/neco.1997.9.8.1735](https://doi.org/10.1162/neco.1997.9.8.1735) *(ml-boston-climate-modeler)*
+- Jozefowicz, R., et al. "An Empirical Exploration of Recurrent Network Architectures." *ICML*, 2015. [proceedings.mlr.press/v37/jozefowicz15.html](https://proceedings.mlr.press/v37/jozefowicz15.html) *(ml-boston-climate-modeler — forget-gate bias initialisation)*
+- Kingma, D.P., and Ba, J. "Adam: A Method for Stochastic Optimization." *ICLR*, 2015. [arxiv.org/abs/1412.6980](https://arxiv.org/abs/1412.6980) *(ml-boston-climate-modeler)*
+- Ba, J.L., et al. "Layer Normalization." 2016. [arxiv.org/abs/1607.06450](https://arxiv.org/abs/1607.06450) *(ml-boston-climate-modeler)*
 
 **Language modeling**
 - Radford, A., et al. "Language Models are Unsupervised Multitask Learners." OpenAI, 2019. [openai.com/research/language-unsupervised](https://openai.com/research/language-unsupervised) *(ml-tiny-llm-gpt)*

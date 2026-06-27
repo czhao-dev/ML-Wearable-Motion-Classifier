@@ -1,169 +1,270 @@
 # ML Climate Modeling
 
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue?logo=python&logoColor=white)](pyproject.toml)
+[![TensorFlow](https://img.shields.io/badge/TensorFlow-2.14%2B-orange?logo=tensorflow&logoColor=white)](requirements.txt)
 [![License: Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
-[![Dependencies](https://img.shields.io/badge/dependencies-none-success)](requirements.txt)
-[![Tests](https://img.shields.io/badge/tests-22%20passing-brightgreen)](tests)
+[![Tests](https://img.shields.io/badge/tests-56%20passing-brightgreen)](tests)
 
-Forecasting Boston-area daily weather from NOAA station data with a clean,
-reproducible Python ML pipeline.
-
-This repository is a polished, Python-first machine-learning project with data
-cleaning, feature engineering, baseline comparison, model training, metrics,
-tests, and generated figures.
+Forecasting Boston-area daily weather from NOAA station data across two complete
+ML pipelines: a from-scratch Ridge regression baseline and a pure-TensorFlow
+deep-learning stack featuring a stacked **LSTM** and a **Transformer encoder**
+for 7-day multi-step forecasting.
 
 ## Project Goal
 
-The goal is to model local weather patterns for Reading, Massachusetts, a Boston
-suburb, using historical daily observations from NOAA. The project predicts:
+Predict three daily weather variables for Reading, Massachusetts (a Boston suburb)
+using 6 years of NOAA station history:
 
-- `PRCP`: daily precipitation
-- `SNOW`: daily snowfall
-- `TOBS`: observed daily temperature
+| Variable | Description |
+|---|---|
+| `TOBS` | Observed daily temperature (°F) |
+| `PRCP` | Daily precipitation (inches) |
+| `SNOW` | Daily snowfall (inches) |
 
-The experiment uses 2013-2015 as the training window and calendar year 2016 as
-the test window.
+**v0.1** uses 2013–2015 for training and 2016 for testing (one-day-ahead ridge
+regression, stdlib-only).  
+**v0.2** extends to 2012–2016 training with 2017 testing and adds 7-day
+multi-output deep learning models built from raw TensorFlow ops.
 
 ## Key Features
 
-- Reproducible Python training pipeline with no third-party runtime dependency.
-- NOAA CSV parsing, missing-value handling, and calendar-based train/test split.
-- Seasonal features, lag features, and rolling weather-history features.
-- Ridge regression implemented from scratch with feature standardization.
-- Seasonal climatology baseline for honest model comparison.
-- Model serialization (`reports/models.json`) for reuse without retraining.
-- Saved metrics and SVG plots for GitHub-friendly reporting.
-- Unit tests for modeling, metrics, splitting, feature construction, and
-  serialization.
+- **Two full pipelines** — Ridge baseline (zero dependencies) + pure-TF deep learning
+- NOAA CSV parsing, missing-value handling, and calendar-based train/test splits
+- Sliding-window sequence dataset with z-score normalisation (train stats only)
+- **LSTM** — 2-layer stacked, unrolled with `tf.unstack`, trained via `tf.GradientTape`
+- **Transformer** — pre-norm encoder with sinusoidal positional encoding and `MultiHeadAttention`, all built from `tf.Variable` / `tf.linalg` — no `tf.keras` anywhere
+- Custom **Adam optimiser** with bias-corrected moment estimates (`tf.Variable`)
+- 7-day multi-output forecasting: PRCP, SNOW, and TOBS predicted jointly
+- Early stopping on temporal validation split; gradient clipping (`tf.clip_by_global_norm`)
+- Weight serialisation to JSON for inference without retraining
+- Exploratory Jupyter notebook with loss curves, attention heatmaps, and model comparison
+- 56/56 unit tests across data, models, sequence windowing, and TF primitives
 
 ## Results
 
-Latest generated metrics are saved in
-[`reports/metrics.json`](reports/metrics.json).
+### Ridge Regression (v0.1 — 1-day-ahead, 2016 test)
 
-| Target | Baseline RMSE | Ridge RMSE | Ridge MAE | Ridge R2 |
-| --- | ---: | ---: | ---: | ---: |
-| PRCP | 0.304 | 0.259 | 0.153 | -0.025 |
-| SNOW | 0.934 | 0.717 | 0.318 | -0.034 |
-| TOBS | 10.661 | 8.171 | 6.239 | 0.747 |
+Metrics saved to [`reports/metrics.json`](reports/metrics.json).
 
-The strongest result is temperature forecasting: the ridge model explains about
-75% of the 2016 observed-temperature variance. Precipitation and snowfall are
-harder because they are sparse, event-driven processes; the ridge model improves
-RMSE over the seasonal baseline, but low R2 shows that local lag/seasonality
-features alone do not capture storm timing.
+| Target | Seasonal Naive RMSE | Ridge RMSE | Ridge MAE | Ridge R² |
+|---|---:|---:|---:|---:|
+| PRCP | 0.304 | 0.259 | 0.153 | −0.025 |
+| SNOW | 0.934 | 0.717 | 0.318 | −0.034 |
+| TOBS | 10.661 | 8.171 | 6.239 | **0.747** |
 
-### Test Suite
+Temperature forecasting (R² = 0.747) is strong. Precipitation and snowfall are
+sparse, event-driven processes — Ridge beats the seasonal baseline on RMSE but
+lag/seasonality features alone cannot capture storm timing.
 
-```bash
-$ python3 -m unittest discover -s tests
-----------------------------------------------------------------------
-Ran 22 tests in 0.005s
+### Deep Learning (v0.2 — 7-day-ahead multi-step, 2017 test)
 
-OK
-```
+Metrics saved to [`reports/metrics_tf.json`](reports/metrics_tf.json).
+Results are averaged across **all 7 forecast horizons** (days 1–7 ahead) and
+all 113 test windows.
 
-22/22 tests pass, covering data cleaning, feature engineering, model fitting,
-metrics, SVG report generation, and model serialization round-trips.
+| Target | LSTM RMSE | LSTM R² | Transformer RMSE | Transformer R² |
+|---|---:|---:|---:|---:|
+| PRCP | 0.318 | −0.012 | 0.319 | −0.018 |
+| SNOW | 1.631 | −0.043 | 1.648 | −0.065 |
+| TOBS | 15.832 | −0.611 | 16.042 | −0.654 |
+
+> **Important: these tables measure different tasks.**
+> Ridge predicts **1 day ahead** on the 2016 test set.
+> LSTM and Transformer predict **days 1–7 ahead simultaneously** on 2017
+> test data — a fundamentally harder problem where errors accumulate with
+> horizon.  Both models converged in ~18–31 epochs (early stopping, patience=15)
+> with nearly identical best validation losses (≈ 0.389 normalised MSE).
+> For a fair comparison, run `scripts/train_tf_models.py --horizon 1` to
+> evaluate the deep learning models on the 1-day-ahead sub-task.
 
 ### Forecast Figures
 
 ![Observed temperature forecast](reports/figures/tobs_actual_vs_predicted.svg)
 
-Additional generated charts:
+- [PRCP actual vs predicted](reports/figures/prcp_actual_vs_predicted.svg)
+- [SNOW actual vs predicted](reports/figures/snow_actual_vs_predicted.svg)
+- [TOBS actual vs predicted](reports/figures/tobs_actual_vs_predicted.svg)
+- [LSTM loss curve](reports/figures/lstm_loss_curve.svg) *(generated by `make train-tf`)*
+- [Transformer loss curve](reports/figures/transformer_loss_curve.svg) *(generated by `make train-tf`)*
 
-- [`PRCP actual vs predicted`](reports/figures/prcp_actual_vs_predicted.svg)
-- [`SNOW actual vs predicted`](reports/figures/snow_actual_vs_predicted.svg)
-- [`TOBS actual vs predicted`](reports/figures/tobs_actual_vs_predicted.svg)
+## Architecture
 
-## Methodology
+### Deep learning pipeline
 
 ```mermaid
 flowchart TD
-    A["NOAA Daily CSV\nGHCN-D · Reading MA US"] --> B["Parse & Clean\nFilter station · Reconstruct missing temps\nZero-fill precip/snow gaps"]
-    B --> C["Feature Engineering\nSeasonal sine/cosine · Long-term trend\nLag 1/7/30d · Rolling mean 7/30d"]
-    C --> D["Train/Test Split\n2013–2015 train · 2016 test\ncalendar split · no lookahead"]
-    D --> E["Ridge Regression\nGradient descent from scratch\nFeature standardization · no ML deps"]
-    E --> F["Serialized Model\nreports/models.json"]
-    F --> G["One-Day-Ahead Forecast\nTOBS · PRCP · SNOW"]
-    G --> H["Evaluation\nRMSE · MAE · R²\nvs. seasonal climatology baseline"]
+    A["NOAA Daily CSV\nGHCN-D · Reading MA US\n2012–2017"] --> B["Parse & Clean\nFilter station · Reconstruct temps\nZero-fill precip/snow/snow-depth"]
+    B --> C["Sliding-Window Dataset\n9 features · lookback=60 days\nhorizon=7 days · z-score normalisation"]
+    C --> D["Train split\n2012–2016 · ~1 768 windows"]
+    C --> E["Test split\n2017 · ~113 windows"]
+    D --> F["LSTM Forecaster\n2× LSTMCell · hidden=64\ntf.GradientTape · Adam"]
+    D --> G["Transformer Forecaster\n3× encoder block · d_model=32\nMultiHeadAttention · GELU FFN"]
+    F --> H["7-Day Forecast\nPRCP · SNOW · TOBS"]
+    G --> H
+    H --> I["Evaluation\nRMSE · MAE · R² per target\nreports/metrics_tf.json"]
 ```
 
-The maintained Python workflow is in [`src/climate_modeling`](src/climate_modeling).
+### Ridge regression pipeline
 
-1. Load the NOAA CSV export and filter to `READING MA US`.
-2. Replace missing precipitation/snow observations with zero.
-3. Reconstruct missing temperatures from available high, low, and observed
-   temperature values, then fill any remaining gaps with same-day climatology.
-4. Build one-day-ahead supervised features:
-   - annual and semiannual sine/cosine seasonality
-   - long-term trend
-   - 1-day, 7-day, and 30-day lags
-   - 7-day and 30-day rolling means
-5. Train a ridge regression model for each target.
-6. Compare against a seasonal day-of-year baseline.
-7. Save metrics, fitted models, and plots under `reports/`.
-
-## Reproduce
-
-This project runs with the Python standard library only.
-
-```bash
-python3 -m unittest discover -s tests
-python3 scripts/train_model.py
+```mermaid
+flowchart TD
+    A["NOAA Daily CSV"] --> B["Parse & Clean"]
+    B --> C["Feature Engineering\nSeasonal sin/cos · trend\nLag 1/7/30d · rolling mean 7/30d"]
+    C --> D["Train/Test Split\n2013–2015 train · 2016 test"]
+    D --> E["Ridge Regression\nGauss-Jordan solver from scratch\nFeature standardisation"]
+    E --> F["Serialised Model\nreports/models.json"]
+    F --> G["One-Day-Ahead Forecast"]
+    G --> H["Evaluation vs seasonal baseline\nreports/metrics.json"]
 ```
-
-Optional package-style execution:
-
-```bash
-PYTHONPATH=src python3 -m climate_modeling.train
-```
-
-You can also change the station or train/test windows:
-
-```bash
-python3 scripts/train_model.py \
-  --station "READING MA US" \
-  --train-start 2013-01-01 \
-  --train-end 2015-12-31 \
-  --test-start 2016-01-01 \
-  --test-end 2016-12-31
-```
-
-### Reusing Trained Models
-
-Training saves fitted models to [`reports/models.json`](reports/models.json),
-so you can load them for inference without retraining:
-
-```python
-from climate_modeling.train import load_models
-from climate_modeling.features import build_supervised_dataset
-
-models = load_models("reports/models.json")
-dataset = build_supervised_dataset(records, "TOBS", start, end)
-predictions = models["TOBS"]["ridge"].predict(dataset.features)
-```
-
-## Tech Stack
-
-- **Language:** Python 3.10+ (standard library only — `csv`, `dataclasses`,
-  `statistics`, `math`, `json`, `argparse`)
-- **Modeling:** Ridge regression and Gauss-Jordan linear solver implemented
-  from scratch
-- **Reporting:** Hand-rolled SVG chart generation, JSON metrics/model exports
-- **Testing:** `unittest` (standard library)
 
 ## Repository Layout
 
 ```text
-.
-├── 962598.csv                  # NOAA daily weather export
-├── src/climate_modeling/        # Maintained Python ML package
-├── scripts/train_model.py       # Repo-root training entrypoint
-├── tests/                       # Unit tests
-├── reports/                     # Generated metrics, models, and SVG figures
-└── pyproject.toml               # Python project metadata
+ml-boston-climate-modeler/
+├── 962598.csv                        NOAA daily weather export (Reading MA US)
+├── src/climate_modeling/
+│   ├── data.py                       CSV loading, cleaning, train/test split
+│   ├── features.py                   Lag + seasonal features for Ridge pipeline
+│   ├── models.py                     RidgeRegressor + SeasonalNaiveModel (stdlib)
+│   ├── metrics.py                    MAE, RMSE, R²
+│   ├── train.py                      Ridge training CLI
+│   ├── visualize.py                  SVG chart generation
+│   ├── sequence_dataset.py           Sliding-window builder + SequenceScaler
+│   ├── tf_cells.py                   LSTMCell · LayerNorm · MultiHeadAttention
+│   │                                 FeedForward · AdamOptimizer  (pure TF)
+│   ├── tf_models.py                  LSTMForecaster · TransformerForecaster
+│   └── tf_trainer.py                 GradientTape loop · evaluate · save/load weights
+├── scripts/
+│   ├── train_model.py                Ridge training entrypoint
+│   └── train_tf_models.py            LSTM + Transformer training entrypoint
+├── notebooks/
+│   └── climate_exploration.ipynb     EDA · loss curves · attention heatmaps
+├── tests/
+│   ├── test_data.py                  Data loading & cleaning (5 tests)
+│   ├── test_models.py                Ridge & baseline (10 tests)
+│   ├── test_pipeline.py              Feature construction & splits (4 tests)
+│   ├── test_visualize.py             SVG generation (3 tests)
+│   ├── test_sequence_dataset.py      Windowing & scaler (10 tests)
+│   └── test_tf_models.py             TF primitives & models (24 tests)
+└── reports/
+    ├── metrics.json                  Ridge results
+    ├── metrics_tf.json               Deep learning results (generated)
+    ├── models.json                   Serialised Ridge weights
+    ├── weights_lstm.json             Serialised LSTM weights (generated)
+    ├── weights_transformer.json      Serialised Transformer weights (generated)
+    └── figures/                      SVG charts
 ```
+
+## Reproduce
+
+### Setup
+
+```bash
+pip install tensorflow>=2.14.0 numpy>=1.24.0
+pip install -e .
+```
+
+The Ridge pipeline has no external dependencies and continues to run with the
+Python standard library only.
+
+### Run all tests
+
+```bash
+make test
+# or
+python3 -m unittest discover -s tests
+```
+
+```
+Ran 56 tests in 0.15s
+OK
+```
+
+### Train Ridge baseline (v0.1)
+
+```bash
+make train
+# or
+python3 scripts/train_model.py
+```
+
+Custom date range:
+
+```bash
+python3 scripts/train_model.py \
+  --train-start 2013-01-01 --train-end 2015-12-31 \
+  --test-start  2016-01-01 --test-end  2016-12-31
+```
+
+### Train LSTM + Transformer (v0.2)
+
+```bash
+make train-tf
+# or
+python3 scripts/train_tf_models.py
+```
+
+Available options:
+
+```
+--lookback   INT    Input window length in days   [60]
+--horizon    INT    Forecast horizon in days       [7]
+--epochs     INT    Maximum training epochs        [150]
+--batch-size INT    Mini-batch size                [32]
+--lr         FLOAT  Adam learning rate             [1e-3]
+--patience   INT    Early-stopping patience        [15]
+--no-lstm          Skip LSTM training
+--no-transformer   Skip Transformer training
+--reports-dir DIR  Output directory               [reports]
+```
+
+### Reusing trained weights
+
+```python
+from climate_modeling.data import load_station_records, parse_iso_date
+from climate_modeling.sequence_dataset import build_sequence_dataset
+from climate_modeling.tf_models import LSTMForecaster
+from climate_modeling.tf_trainer import load_weights, evaluate_model
+
+records = load_station_records("962598.csv")
+X_tr, y_tr, X_te, y_te, scaler = build_sequence_dataset(
+    records,
+    train_start=parse_iso_date("2012-01-01"),
+    train_end=parse_iso_date("2016-12-31"),
+    test_start=parse_iso_date("2017-01-01"),
+    test_end=parse_iso_date("2017-12-31"),
+)
+
+lstm = LSTMForecaster(hidden_size=64, n_layers=2, horizon=7)
+load_weights(lstm, "reports/weights_lstm.json")
+
+metrics, predictions = evaluate_model(lstm, X_te, y_te, scaler)
+```
+
+### Exploratory notebook
+
+```bash
+pip install matplotlib jupyterlab
+jupyter lab notebooks/climate_exploration.ipynb
+```
+
+The notebook covers EDA, training loss curves, attention weight heatmaps for
+each Transformer encoder block, and a side-by-side comparison of all four
+models.
+
+## Tech Stack
+
+| Layer | Tools |
+|---|---|
+| Language | Python 3.10+ |
+| Deep learning | TensorFlow 2.14+ — `tf.Module`, `tf.Variable`, `tf.GradientTape`, `tf.linalg`, `tf.nn` |
+| Baseline | Ridge regression + Gauss-Jordan solver (Python stdlib) |
+| Data | `csv`, `dataclasses`, `statistics` (stdlib) |
+| Reporting | Hand-rolled SVG, JSON metrics/weight exports |
+| Testing | `unittest` (stdlib) |
+| Notebook | Jupyter, Matplotlib |
+
+No `tf.keras` API is used in any model, optimiser, or training code.
 
 ## License
 

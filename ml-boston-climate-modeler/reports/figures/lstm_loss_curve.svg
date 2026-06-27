@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="320">
+<rect width="640" height="320" fill="#fff"/>
+<text x="320" y="20" text-anchor="middle" font-size="13" font-family="sans-serif">LSTM – training and validation loss</text>
+<polyline points="50.0,50.0 81.8,83.8 113.5,89.9 145.3,92.7 177.1,96.6 208.8,98.2 240.6,103.1 272.4,104.0 304.1,104.6 335.9,107.9 367.6,110.4 399.4,112.8 431.2,116.4 462.9,117.9 494.7,122.6 526.5,124.9 558.2,125.5 590.0,129.6" fill="none" stroke="#2563eb" stroke-width="2"/>
+<polyline points="50.0,268.9 81.8,268.7 113.5,270.0 145.3,265.7 177.1,267.5 208.8,263.2 240.6,265.1 272.4,262.3 304.1,266.8 335.9,268.9 367.6,263.8 399.4,257.7 431.2,263.9 462.9,262.0 494.7,258.9 526.5,265.5 558.2,264.8 590.0,259.1" fill="none" stroke="#dc2626" stroke-width="2"/>
+<text x="50" y="312" font-size="10" fill="#2563eb" font-family="sans-serif">— train</text>
+<text x="110" y="312" font-size="10" fill="#dc2626" font-family="sans-serif">— val</text>
+</svg>

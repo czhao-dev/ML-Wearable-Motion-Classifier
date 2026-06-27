@@ -1,1 +1,7 @@
-# No third-party packages are required for the core pipeline.
+# Core deep-learning pipeline (new in v0.2.0)
+tensorflow>=2.14.0
+numpy>=1.24.0
+
+# Notebook visualisation (optional — not required by the training scripts)
+# matplotlib>=3.7.0
+# jupyterlab>=4.0.0
