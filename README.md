@@ -138,6 +138,45 @@ Daily weather forecasting for Reading, MA (Boston suburb) from NOAA station data
 
 ---
 
+## References
+
+Papers and resources that directly informed the techniques used across these projects.
+
+**Transformers and attention**
+- Vaswani, A., et al. "Attention Is All You Need." *NeurIPS*, 2017. [arxiv.org/abs/1706.03762](https://arxiv.org/abs/1706.03762)
+- Dosovitskiy, A., et al. "An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale." *ICLR*, 2021. [arxiv.org/abs/2010.11929](https://arxiv.org/abs/2010.11929) *(ml-satellite-image-classifier)*
+
+**Language modeling**
+- Radford, A., et al. "Language Models are Unsupervised Multitask Learners." OpenAI, 2019. [openai.com/research/language-unsupervised](https://openai.com/research/language-unsupervised) *(ml-tiny-llm-gpt)*
+- Eldan, R., and Li, Y. "TinyStories: How Small Can Language Models Be and Still Speak Coherent English?" 2023. [arxiv.org/abs/2305.07759](https://arxiv.org/abs/2305.07759) *(ml-tiny-llm-gpt)*
+- Karpathy, A. nanoGPT. [github.com/karpathy/nanoGPT](https://github.com/karpathy/nanoGPT) *(ml-tiny-llm-gpt)*
+
+**LLM alignment and fine-tuning**
+- Ouyang, L., et al. "Training Language Models to Follow Instructions with Human Feedback." *NeurIPS*, 2022. [arxiv.org/abs/2203.02155](https://arxiv.org/abs/2203.02155) *(ml-llm-alignment-fine-tuning)*
+- Rafailov, R., et al. "Direct Preference Optimization: Your Language Model is Secretly a Reward Model." *NeurIPS*, 2023. [arxiv.org/abs/2305.18290](https://arxiv.org/abs/2305.18290) *(ml-llm-alignment-fine-tuning)*
+- Hu, E., et al. "LoRA: Low-Rank Adaptation of Large Language Models." *ICLR*, 2022. [arxiv.org/abs/2106.09685](https://arxiv.org/abs/2106.09685) *(ml-llm-alignment-fine-tuning)*
+- Schulman, J., et al. "Proximal Policy Optimization Algorithms." 2017. [arxiv.org/abs/1707.06347](https://arxiv.org/abs/1707.06347) *(ml-llm-alignment-fine-tuning)*
+
+**Retrieval-augmented generation**
+- Lewis, P., et al. "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks." *NeurIPS*, 2020. [arxiv.org/abs/2005.11401](https://arxiv.org/abs/2005.11401) *(ml-gcp-vertex-rag-chatbot)*
+
+**Graph learning**
+- Fey, M., and Lenssen, J.E. "Fast Graph Representation Learning with PyTorch Geometric." *ICLR Workshop*, 2019. [arxiv.org/abs/1903.02428](https://arxiv.org/abs/1903.02428) *(ml-movie-recommender)*
+- Perozzi, B., Al-Rfou, R., and Skiena, S. "DeepWalk: Online Learning of Social Representations." *KDD*, 2014. [arxiv.org/abs/1403.6652](https://arxiv.org/abs/1403.6652) *(ml-social-network-predictor)*
+- Backstrom, L., and Kleinberg, J. "Romantic Partnerships and the Dispersion of Social Ties." *CSCW*, 2014. [arxiv.org/abs/1310.6753](https://arxiv.org/abs/1310.6753) *(ml-social-network-predictor)*
+
+**Transfer learning and convolutional networks**
+- Simonyan, K., and Zisserman, A. "Very Deep Convolutional Networks for Large-Scale Image Recognition." *ICLR*, 2015. [arxiv.org/abs/1409.1556](https://arxiv.org/abs/1409.1556) *(ml-recyclable-material-classifier-vgg16)*
+- Russakovsky, O., et al. "ImageNet Large Scale Visual Recognition Challenge." *IJCV*, 2015. [arxiv.org/abs/1409.0575](https://arxiv.org/abs/1409.0575) *(ml-satellite-image-classifier, ml-recyclable-material-classifier-vgg16)*
+
+**Clinical assessment**
+- Wolf, S.L., et al. "Assessing Wolf Motor Function Test as Outcome Measure for Research in Patients After Stroke." *Stroke*, 32(7):1635–1639, 2001. [doi.org/10.1161/01.STR.32.7.1635](https://doi.org/10.1161/01.STR.32.7.1635) *(ml-wearable-motion-classifier)*
+
+**Datasets**
+- NOAA Global Historical Climatology Network Daily (GHCN-D). [ncei.noaa.gov](https://www.ncei.noaa.gov/products/land-based-station/global-historical-climatology-network-daily) *(ml-boston-climate-modeler)*
+- Harper, F.M., and Konstan, J.A. "The MovieLens Datasets: History and Context." *ACM TIIS*, 5(4):1–19, 2015. [doi.org/10.1145/2827872](https://doi.org/10.1145/2827872) *(ml-movie-recommender)*
+- Leskovec, J., and Mcauley, J. "Learning to Discover Social Circles in Ego Networks." *NeurIPS*, 2012. [snap.stanford.edu/data/ego-Facebook.html](https://snap.stanford.edu/data/ego-Facebook.html) *(ml-social-network-predictor)*
+
 ## License
 
 This repository is licensed under the [MIT License](LICENSE).
