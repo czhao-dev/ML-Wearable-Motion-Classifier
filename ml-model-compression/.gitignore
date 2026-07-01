@@ -1,0 +1,14 @@
+.DS_Store
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+.venv/
+venv/
+env/
+
+models/trained/
+*.pth
+*.pt
+
+reports/figures/.DS_Store

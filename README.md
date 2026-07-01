@@ -2,13 +2,14 @@
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-A monorepo of nine end-to-end machine learning projects spanning computer vision, large language models, graph learning, time-series forecasting, and production inference serving. Each project lives in its own subdirectory with independent dependencies, tests, documented results, and a full README.
+A monorepo of ten end-to-end machine learning projects spanning computer vision, large language models, graph learning, time-series forecasting, model compression, and production inference serving. Each project lives in its own subdirectory with independent dependencies, tests, documented results, and a full README.
 
 ## Projects at a Glance
 
 | Project | Area | Key Technologies | Standout |
 | --- | --- | --- | --- |
 | [ml-satellite-image-classifier](#ml-satellite-image-classifier) | Computer Vision | PyTorch, Keras/TF, FastAPI, Docker | 99.83% accuracy; FastAPI server serving all four models |
+| [ml-model-compression](#ml-model-compression) | Model Compression | PyTorch, `torch.ao.quantization` | Distilled student ~150× smaller than its teacher at 99.9%+ accuracy |
 | [ml-llm-alignment-fine-tuning](#ml-llm-alignment-fine-tuning) | LLM Alignment | PyTorch, TRL, HuggingFace, LoRA | Full SFT → RM → PPO RLHF → DPO pipeline, all trained locally |
 | [ml-tiny-llm-gpt](#ml-tiny-llm-gpt) | Language Modeling | PyTorch | GPT decoder-only Transformer built from scratch |
 | [ml-gcp-vertex-rag-chatbot](#ml-gcp-vertex-rag-chatbot) | RAG / GenAI | LangChain, Vertex AI, Chroma, Cloud Run | Document Q&A app deployed to GCP Cloud Run |
@@ -32,6 +33,19 @@ Binary classification of 64×64 satellite image tiles as agricultural vs. non-ag
 - **Notable:** Caught and fixed a data-leakage bug in the original evaluation methodology that scored models against the full training set rather than a held-out split.
 
 **Stack:** Python · PyTorch · Keras/TensorFlow · FastAPI · Uvicorn · Docker Compose
+
+---
+
+### ml-model-compression
+
+Three orthogonal compression techniques — pruning, post-training quantization, and knowledge distillation — benchmarked against the PyTorch CNN and CNN-ViT models trained in `ml-satellite-image-classifier`, all scored on the same fixed held-out split for a controlled comparison.
+
+- **Pruning:** Unstructured global L1 magnitude pruning and structured L1 channel pruning (`torch.nn.utils.prune`), swept across 20–80% sparsity. Unstructured holds accuracy to 60% sparsity but doesn't reduce size/latency without sparse BLAS; structured produces real size/latency drops but collapses to the class prior by 40% sparsity without fine-tuning recovery — an intentionally honest "raw accuracy cliff" measurement.
+- **Quantization:** Static INT8 PTQ on the CNN (4× smaller, ~1.8× faster, no measurable accuracy loss) and dynamic INT8 PTQ on the CNN-ViT's linear layers. Required working around two undocumented gaps in the source architecture: eager-mode static quantization needs manual `QuantStub`/`DeQuantStub` insertion, and the CNN's `BatchNorm` layers (positioned after pooling, not fusable with the preceding conv) have no quantized kernel and must run in FP32 sandwiched between quant/dequant boundaries.
+- **Knowledge distillation:** A 3-block, ~259K-parameter `StudentCNN` distilled from the frozen CNN-ViT teacher (temperature-scaled KL + hard-label CE, with the standard T² gradient-scaling term) reaches 99.9%+ accuracy at ~150× smaller than the teacher and sub-millisecond CPU latency — one of several places results diverged from the initial write-up (~12× was the original estimate) once actually measured.
+- **Reproducibility groundwork:** Corrected the CNN-ViT's constructor defaults (`depth=6, heads=8`) against its real trained hyperparameters (`depth=3, heads=6`) before any of the above would load correctly, and standardized every technique on a single canonical held-out split.
+
+**Stack:** Python · PyTorch · `torch.ao.quantization` · torchvision · scikit-learn
 
 ---
 
@@ -176,6 +190,12 @@ Papers and resources that directly informed the techniques used across these pro
 **Transfer learning and convolutional networks**
 - Simonyan, K., and Zisserman, A. "Very Deep Convolutional Networks for Large-Scale Image Recognition." *ICLR*, 2015. [arxiv.org/abs/1409.1556](https://arxiv.org/abs/1409.1556) *(ml-recyclable-material-classifier-vgg16)*
 - Russakovsky, O., et al. "ImageNet Large Scale Visual Recognition Challenge." *IJCV*, 2015. [arxiv.org/abs/1409.0575](https://arxiv.org/abs/1409.0575) *(ml-satellite-image-classifier, ml-recyclable-material-classifier-vgg16)*
+
+**Model compression**
+- Han, S., Pool, J., Tran, J., and Dally, W.J. "Learning Both Weights and Connections for Efficient Neural Networks." *NeurIPS*, 2015. [arxiv.org/abs/1506.02626](https://arxiv.org/abs/1506.02626) *(ml-model-compression)*
+- Molchanov, P., Tyree, S., Karras, T., Aila, T., and Kautz, J. "Pruning Convolutional Neural Networks for Resource Efficient Inference." *ICLR*, 2017. [arxiv.org/abs/1611.06440](https://arxiv.org/abs/1611.06440) *(ml-model-compression)*
+- Jacob, B., et al. "Quantization and Training of Neural Networks for Efficient Integer-Arithmetic-Only Inference." *CVPR*, 2018. [arxiv.org/abs/1712.05877](https://arxiv.org/abs/1712.05877) *(ml-model-compression)*
+- Hinton, G., Vinyals, O., and Dean, J. "Distilling the Knowledge in a Neural Network." *NeurIPS Workshop*, 2015. [arxiv.org/abs/1503.02531](https://arxiv.org/abs/1503.02531) *(ml-model-compression)*
 
 **Clinical assessment**
 - Wolf, S.L., et al. "Assessing Wolf Motor Function Test as Outcome Measure for Research in Patients After Stroke." *Stroke*, 32(7):1635–1639, 2001. [doi.org/10.1161/01.STR.32.7.1635](https://doi.org/10.1161/01.STR.32.7.1635) *(ml-wearable-motion-classifier)*

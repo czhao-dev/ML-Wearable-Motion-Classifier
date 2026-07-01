@@ -1,0 +1,146 @@
+[
+  {
+    "variant": "PyTorch CNN (FP32 baseline)",
+    "technique": "Baseline",
+    "accuracy": 0.9991666666666666,
+    "f1": 0.9991311902693311,
+    "size_mb": 74.71851539611816,
+    "latency_ms": 4.073515333991963,
+    "throughput_ips": 245.48821300741736
+  },
+  {
+    "variant": "PyTorch CNN \u2014 pruned 20% (unstructured)",
+    "technique": "Pruning",
+    "prune_type": "unstructured",
+    "sparsity": 0.2,
+    "accuracy": 0.9991666666666666,
+    "f1": 0.9991311902693311,
+    "size_mb": 74.71851539611816,
+    "latency_ms": 4.143455166020431,
+    "throughput_ips": 241.34447216921308
+  },
+  {
+    "variant": "PyTorch CNN \u2014 pruned 40% (unstructured)",
+    "technique": "Pruning",
+    "prune_type": "unstructured",
+    "sparsity": 0.4,
+    "accuracy": 0.9983333333333333,
+    "f1": 0.9982608695652174,
+    "size_mb": 74.71851539611816,
+    "latency_ms": 4.225826333975419,
+    "throughput_ips": 236.64010798552061
+  },
+  {
+    "variant": "PyTorch CNN \u2014 pruned 60% (unstructured)",
+    "technique": "Pruning",
+    "prune_type": "unstructured",
+    "sparsity": 0.6,
+    "accuracy": 0.9908333333333333,
+    "f1": 0.9903593339176161,
+    "size_mb": 74.71851539611816,
+    "latency_ms": 4.116233416018076,
+    "throughput_ips": 242.94054756675357
+  },
+  {
+    "variant": "PyTorch CNN \u2014 pruned 80% (unstructured)",
+    "technique": "Pruning",
+    "prune_type": "unstructured",
+    "sparsity": 0.8,
+    "accuracy": 0.5525,
+    "f1": 0.12682926829268293,
+    "size_mb": 74.71851539611816,
+    "latency_ms": 4.120904666022398,
+    "throughput_ips": 242.6651623963011
+  },
+  {
+    "variant": "PyTorch CNN \u2014 pruned 20% (structured)",
+    "technique": "Pruning",
+    "prune_type": "structured",
+    "sparsity": 0.2,
+    "accuracy": 0.7766666666666666,
+    "f1": 0.6968325791855203,
+    "size_mb": 49.161142349243164,
+    "latency_ms": 3.1458809999749064,
+    "throughput_ips": 317.8759781466548
+  },
+  {
+    "variant": "PyTorch CNN \u2014 pruned 40% (structured)",
+    "technique": "Pruning",
+    "prune_type": "structured",
+    "sparsity": 0.4,
+    "accuracy": 0.52,
+    "f1": 0.0,
+    "size_mb": 28.858407974243164,
+    "latency_ms": 2.126272331981454,
+    "throughput_ips": 470.3066417969654
+  },
+  {
+    "variant": "PyTorch CNN \u2014 pruned 60% (structured)",
+    "technique": "Pruning",
+    "prune_type": "structured",
+    "sparsity": 0.6,
+    "accuracy": 0.52,
+    "f1": 0.0,
+    "size_mb": 13.955392837524414,
+    "latency_ms": 1.0391539180418476,
+    "throughput_ips": 962.3213487799495
+  },
+  {
+    "variant": "PyTorch CNN \u2014 pruned 80% (structured)",
+    "technique": "Pruning",
+    "prune_type": "structured",
+    "sparsity": 0.8,
+    "accuracy": 0.52,
+    "f1": 0.0,
+    "size_mb": 4.335947036743164,
+    "latency_ms": 0.5063545000157319,
+    "throughput_ips": 1974.9009833405867
+  },
+  {
+    "variant": "PyTorch CNN-ViT (FP32 baseline)",
+    "technique": "Baseline",
+    "accuracy": 0.9983333333333333,
+    "f1": 0.9982638888888888,
+    "size_mb": 150.95486545562744,
+    "latency_ms": 8.813917667954229,
+    "throughput_ips": 113.45692547546872
+  },
+  {
+    "variant": "PyTorch CNN \u2014 INT8 static PTQ",
+    "technique": "Quantization",
+    "qscheme": "static",
+    "accuracy": 1.0,
+    "f1": 1.0,
+    "size_mb": 18.75956153869629,
+    "latency_ms": 2.23392041597981,
+    "throughput_ips": 447.6435207121711
+  },
+  {
+    "variant": "PyTorch CNN-ViT \u2014 INT8 dynamic PTQ",
+    "technique": "Quantization",
+    "qscheme": "dynamic",
+    "accuracy": 0.9983333333333333,
+    "f1": 0.9982638888888888,
+    "size_mb": 90.20925807952881,
+    "latency_ms": 5.656401000043843,
+    "throughput_ips": 176.79086047687372
+  },
+  {
+    "variant": "StudentCNN (hard labels only)",
+    "technique": "Distillation",
+    "accuracy": 1.0,
+    "f1": 1.0,
+    "size_mb": 0.9980754852294922,
+    "latency_ms": 0.6120197499985807,
+    "throughput_ips": 1633.9341990226935
+  },
+  {
+    "variant": "StudentCNN (distilled from CNN-ViT)",
+    "technique": "Distillation",
+    "accuracy": 0.9991666666666666,
+    "f1": 0.9991311902693311,
+    "size_mb": 0.9980754852294922,
+    "latency_ms": 0.5911455000168644,
+    "throughput_ips": 1691.630909770051
+  }
+]
