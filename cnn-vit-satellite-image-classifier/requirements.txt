@@ -16,3 +16,4 @@ skillsnetwork>=0.21.9
 pytest>=7.4
 
 mlflow>=2.14.0
+prefect>=3.0.0
