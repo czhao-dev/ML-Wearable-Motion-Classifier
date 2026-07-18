@@ -25,4 +25,6 @@ reports/figures/.DS_Store
 
 wandb/
 mlruns/
+mlruns.db
+mlartifacts/
 logs/

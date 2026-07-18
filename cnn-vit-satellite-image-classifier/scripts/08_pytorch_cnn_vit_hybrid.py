@@ -75,6 +75,8 @@ import torch.optim as optim
 from torchvision import transforms, datasets
 from torch.utils.data import DataLoader, random_split
 import torch.nn.functional as F
+import mlflow
+import mlflow.pytorch
 print("Imported PyTorch libraries")
 
 data_dir = "."
@@ -308,6 +310,23 @@ embed_dim  = 768
 
 print(f"epochs:{epochs} | batch:{batch_size} | attn_heads:{attn_heads} | depth:{depth} | embed_dim:{embed_dim}")
 
+mlflow.set_tracking_uri("sqlite:///" + os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "mlruns.db"))
+mlflow.set_experiment("cnn-vit-satellite-image-classifier")
+mlflow.start_run(run_name="pytorch_cnn_vit_hybrid")
+mlflow.log_params({
+    "model": "pytorch_cnn_vit_hybrid",
+    "img_size": img_size,
+    "batch_size": batch_size,
+    "lr": lr,
+    "epochs": epochs,
+    "seed": SEED,
+    "num_classes": num_cls,
+    "attn_heads": attn_heads,
+    "depth": depth,
+    "embed_dim": embed_dim,
+    "device": device,
+})
+
 model_dict_name = "pytorch_cnn_vit_ai_capstone_model_state_dict.pth"
 
 model     = CNN_ViT_Hybrid(num_classes=num_cls,
@@ -328,6 +347,7 @@ optimizer= torch.optim.Adam(model.parameters(), lr=lr)
 
 
 best_loss = float('inf')
+best_val_acc = 0.0
 tr_loss_all = []
 te_loss_all = []
 tr_acc_all = []
@@ -350,12 +370,24 @@ for epoch in range(1, epochs+1):
     te_acc_all.append(te_acc)
     training_time.append(time.time() - start_time)
 
+    mlflow.log_metrics({
+        "train_loss": tr_loss,
+        "val_loss": te_loss,
+        "train_acc": tr_acc,
+        "val_acc": te_acc,
+    }, step=epoch)
+
     # Save the best model
     avg_te_loss = te_loss
     if avg_te_loss < best_loss:
         print(f"Current loss ({avg_te_loss:.04f}) lower than previous best loss ({ best_loss:.04f}), Saving current model state")
         best_loss = avg_te_loss
+        best_val_acc = te_acc
         torch.save(model.state_dict(), model_dict_name)
+
+mlflow.log_metric("held_out_accuracy", best_val_acc)
+mlflow.pytorch.log_model(model, name="model", serialization_format="pickle")
+mlflow.end_run()
 
 fig_w, fig_h = 6,4
 fig, axs = plt.subplots(figsize=(fig_w, fig_h ))

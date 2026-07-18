@@ -25,6 +25,8 @@ import torch.optim as optim
 from torchvision import transforms, datasets
 from torch.utils.data import DataLoader, random_split
 from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
+import mlflow
+import mlflow.pytorch
 print("Imported libraries")
 
 extract_dir = "."
@@ -124,6 +126,20 @@ num_classes = 2 #number of classes in the dataset
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 print(f"Device used is {device}")
+
+mlflow.set_tracking_uri("sqlite:///" + os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "mlruns.db"))
+mlflow.set_experiment("cnn-vit-satellite-image-classifier")
+mlflow.start_run(run_name="pytorch_cnn")
+mlflow.log_params({
+    "model": "pytorch_cnn",
+    "img_size": img_size,
+    "batch_size": batch_size,
+    "lr": lr,
+    "epochs": epochs,
+    "seed": SEED,
+    "num_classes": num_classes,
+    "device": device,
+})
 
 train_transform = transforms.Compose([transforms.Resize((img_size, img_size)),
                                       transforms.RandomRotation(40),
@@ -243,6 +259,13 @@ for epoch in range(epochs):
     acc_history['train'].append(train_correct/train_total)
     acc_history['val'].append(val_correct/val_total)
 
+    mlflow.log_metrics({
+        "train_loss": loss_history['train'][-1],
+        "val_loss": loss_history['val'][-1],
+        "train_acc": acc_history['train'][-1],
+        "val_acc": acc_history['val'][-1],
+    }, step=epoch)
+
     #print(f"Epoch {epoch+1}/{epochs}")
     print(f"Train Loss: {loss_history['train'][-1]:.4f} | Val Loss: {loss_history['val'][-1]:.4f}")
     print(f"Train Acc: {acc_history['train'][-1]:.4f} | Val Acc: {acc_history['val'][-1]:.4f}")
@@ -279,3 +302,7 @@ with torch.no_grad():
 
 accuracy = accuracy_score(all_labels, all_preds)
 print(f"The accuracy of the model is: {accuracy:.4f}")
+
+mlflow.log_metric("held_out_accuracy", accuracy)
+mlflow.pytorch.log_model(model, name="model", serialization_format="pickle")
+mlflow.end_run()
