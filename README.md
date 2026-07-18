@@ -10,12 +10,12 @@ Every project has its own GitHub Actions test workflow, path-scoped so a push on
 
 | Project | Area | Key Technologies | Standout |
 | --- | --- | --- | --- |
-| [GenAI RAG Chatbot](gen-ai-rag-chatbot/README.md) | RAG / GenAI | LangChain, Vertex AI, Chroma, Cloud Run | Document Q&A app deployed to GCP Cloud Run |
+| [GenAI RAG Chatbot](gen-ai-rag-chatbot/README.md) | RAG / GenAI | LangChain, Vertex AI, Chroma, Cloud Run, Terraform | Document Q&A app deployed to GCP Cloud Run via Terraform-managed IaC |
 | [Agentic AI Tool Use](agentic-ai-tool-use/README.md) | Agentic AI / Tool Use | OpenAI API, Python | Live gpt-4.1 benchmark on 35 tasks — Reflexion 94.29% beats Plan-and-Execute 88.57% and ReAct 85.71% for $0.39 total; 44 tests, zero real API calls in CI |
 | [Churn Predictor](churn-predictor/README.md) | Causal Inference / Uplift Modeling | scikit-learn, EconML | Causal forest is the only model to beat random targeting (Qini +369); targeted policy cuts net losses 98.5% vs. blanket offers |
-| [Tiny LLM GPT](tiny-llm-gpt/README.md) | Language Modeling | PyTorch, AWS EC2 | Tiny/Small/Medium scaling sweep — perplexity 7.11 → 5.09; Small/Medium trained on a rented cloud GPU |
+| [Tiny LLM GPT](tiny-llm-gpt/README.md) | Language Modeling | PyTorch, AWS EC2, GCP T4 | Tiny/Small/Medium scaling sweep — perplexity 7.11 → 5.09; plus a real DDP demo showing NCCL rejects two ranks sharing one GPU while gloo runs (~6% slower aggregate throughput, lower per-step loss from the larger effective batch) |
 | [LLM Alignment Fine-Tuning](llm-alignment-fine-tuning/README.md) | LLM Alignment | PyTorch, TRL, HuggingFace, LoRA | Full SFT → RM → PPO RLHF → DPO pipeline, all trained locally |
-| [CNN-ViT Satellite Image Classifier](cnn-vit-satellite-image-classifier/README.md) | Computer Vision | PyTorch, Keras/TF, FastAPI, Docker | 99.92% accuracy; FastAPI server serving all four models, all trained from scratch |
+| [CNN-ViT Satellite Image Classifier](cnn-vit-satellite-image-classifier/README.md) | Computer Vision | PyTorch, Keras/TF, FastAPI, Docker, MLflow, Prefect, Evidently | 99.92% accuracy; FastAPI server serving all four models, all trained from scratch; MLflow-tracked, Prefect-orchestrated retraining pipeline with a real locust load test (0 failures, ~50 req/s) and an Evidently drift report, all run on a GCP GPU VM |
 | [ML Model Compression](ml-model-compression/README.md) | Model Compression | PyTorch, `torch.ao.quantization` | Distilled student ~150× smaller than its teacher (99.2% accuracy); INT8 quantization cuts the CNN 4× smaller and ~8.7× faster with no accuracy loss |
 | [GNN Movie Recommender](gnn-movie-recommender/README.md) | Graph ML | PyTorch Geometric, igraph | Heterogeneous GNN benchmarked at full IMDb scale (240K movies) as well as a small sample; top-N recommendation on MovieLens |
 | [LSTM Transformer Climate Modeler](lstm-transformer-climate-modeler/README.md) | Time-Series | TensorFlow, Python | Pure-TF LSTM + Transformer from scratch (no Keras); 7-day multi-step forecasting; 56 unit tests |
@@ -32,10 +32,10 @@ A deployed RAG document Q&A app: upload a PDF, TXT, Markdown, CSV, or DOCX file 
 **Live demo:** https://rag-pdf-chatbot-jzddchwu5q-uc.a.run.app
 
 - **RAG pipeline:** LangChain document loaders → `RecursiveCharacterTextSplitter` → Vertex AI `text-embedding-004` embeddings → Chroma vector store → `RetrievalQA` chain → Gemini 2.5 Flash answer with source grounding.
-- **Deployment:** Containerized with Docker and deployed to GCP Cloud Run with scale-to-zero cost controls; credentials handled via Application Default Credentials for local development.
+- **Deployment:** Containerized with Docker, image build stays a separate explicit step, and the Cloud Run service, Artifact Registry repo, IAM, and API enablement are codified in Terraform (`infra/`) rather than ad hoc `gcloud` commands — real `terraform apply` migrated the live deployment from a manual, ad hoc-built image to this IaC-managed one with scale-to-zero cost controls; credentials handled via Application Default Credentials for local development.
 - **Interface:** Gradio web UI; standalone annotated scripts for each RAG concept (loading, splitting, embedding, retrieval) as reference implementations.
 
-**Stack:** Python · LangChain · Google Vertex AI (Gemini + text-embedding-004) · Chroma · Gradio · Docker · Cloud Run
+**Stack:** Python · LangChain · Google Vertex AI (Gemini + text-embedding-004) · Chroma · Gradio · Docker · Cloud Run · Terraform
 
 ---
 
@@ -74,9 +74,10 @@ A from-scratch GPT-style language model covering the complete pipeline from raw 
 - **Pipeline:** Custom BPE tokenizer training → dataset preprocessing and sequence packing → training loop with gradient clipping and validation checkpointing → top-k / top-p text generation → perplexity evaluation → throughput and memory benchmarking.
 - **Model scaling experiment:** Tiny (~4.3M), Small (~15M), and Medium (~30M) variants all trained for the full 20,000 steps on the same TinyStories tokenizer/dataset — validation perplexity improves monotonically (7.11 → 5.36 → 5.09) with capacity.
 - **Cloud training:** Small/Medium's full-scale runs were provisioned on a rented AWS g4dn.xlarge (Tesla T4) rather than the author's laptop, cutting combined training time from an estimated ~34 hours (Apple M3) to under 10 hours.
+- **Distributed training (DDP):** `scripts/train_ddp.py` adds `torchrun`-launched `DistributedDataParallel` training, additive to the single-process script. A real run on a rented GCP T4 VM with 2 ranks sharing that one GPU found NCCL refuses outright (`Duplicate GPU detected`), gloo runs but is ~6% slower in aggregate tokens/sec than 1 process (GPU contention + CPU-mediated collectives) while converging in fewer steps (larger effective batch from gradient averaging) — a genuine throughput-vs-convergence tradeoff, not a speedup.
 - Intentionally sized to run on consumer hardware while demonstrating every component of a modern LLM training stack.
 
-**Stack:** Python · PyTorch · AWS EC2
+**Stack:** Python · PyTorch · AWS EC2 · GCP T4
 
 ---
 
@@ -102,8 +103,9 @@ Binary classification of 64×64 satellite image tiles as agricultural vs. non-ag
 - **Results:** PyTorch CNN 99.92%, Keras CNN 99.25%, PyTorch CNN-ViT 97.50%, Keras CNN-ViT 99.17% — all on a 1,200-image held-out split never seen during training, and all trained fully from scratch (no pretrained weights downloaded from IBM's course storage at any stage).
 - **Inference server:** FastAPI app (`serve/`) loads all four models at startup and exposes `/health`, `/models`, and `POST /predict?model=` endpoints. Model backend is selectable per request. Deployed with Docker Compose; model weights mounted read-only at runtime to keep the image small.
 - **Notable:** Caught and fixed a data-leakage bug in the original evaluation methodology that scored models against the full training set rather than a held-out split. Later retrained every model end-to-end on a GCP T4 GPU VM to replace what had been a partially IBM-pretrained CNN-ViT hybrid — catching two more real bugs along the way: a TensorFlow/PyTorch import-order segfault, and a checkpoint-loading bug that silently left the served CNN-ViT model's CNN backbone randomly initialized.
+- **MLOps pipeline:** MLflow experiment tracking + Model Registry, a Prefect-orchestrated retrain flow (train → evaluate → register-if-better), a locust load test, and an Evidently drift report — all actually executed on a rented GCP T4 GPU VM against the PyTorch track. Real numbers: retrain scored 99.42% (CNN) / 95.17% (hybrid) held-out accuracy and auto-registered the CNN; the load test ran 2,975 real `/predict` requests at 0 failures (p50 15ms, p99 63ms); the drift report correctly flagged a synthetic 1.6× brightness shift across all 9 tracked features, with the model's own confidence drifting far less sharply than the raw pixel statistics.
 
-**Stack:** Python · PyTorch · Keras/TensorFlow · FastAPI · Uvicorn · Docker Compose
+**Stack:** Python · PyTorch · Keras/TensorFlow · FastAPI · Uvicorn · Docker Compose · MLflow · Prefect · Evidently · locust
 
 ---
 
