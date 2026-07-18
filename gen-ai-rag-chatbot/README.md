@@ -179,24 +179,15 @@ gcloud billing accounts list
 gcloud billing projects link YOUR_PROJECT_ID --billing-account=BILLING_ACCOUNT_ID
 ```
 
-Enable the APIs used by Vertex AI, Cloud Run, Cloud Build, and Artifact Registry:
+API enablement (Vertex AI, Cloud Run, Cloud Build, Artifact Registry) is handled by Terraform below, not a manual `gcloud services enable` step.
+
+## Deployment (Terraform)
+
+Deployment is codified in [`infra/`](infra/) with Terraform, rather than ad hoc `gcloud` commands. Terraform owns the Artifact Registry repository, the Cloud Run v2 service, public-invoker IAM, the Vertex AI IAM grant, and API enablement; it does **not** own the container image build (`docker buildx build --push` stays a separate, explicit step — keeping image builds out of Terraform avoids `local-exec` anti-patterns and matches how the image is normally built/pushed in CI or by hand).
+
+**1. Build and push the image** (Cloud Run requires `linux/amd64`, so target that platform explicitly if building on Apple Silicon):
 
 ```bash
-gcloud services enable aiplatform.googleapis.com run.googleapis.com \
-  artifactregistry.googleapis.com cloudbuild.googleapis.com \
-  --project=YOUR_PROJECT_ID
-```
-
-## Deployment
-
-The app includes a `Dockerfile` for Cloud Run. Create an Artifact Registry repository once, then build and push the image with `docker buildx` and deploy it by reference (Cloud Run requires `linux/amd64`, so explicitly target that platform if you're building on Apple Silicon):
-
-```bash
-gcloud artifacts repositories create rag-pdf-chatbot \
-  --repository-format=docker \
-  --location=us-central1 \
-  --project=YOUR_PROJECT_ID
-
 gcloud auth configure-docker us-central1-docker.pkg.dev
 
 docker buildx build --platform linux/amd64 \
@@ -204,39 +195,28 @@ docker buildx build --platform linux/amd64 \
   --push .
 ```
 
-Then deploy from that image for a live demo that scales to zero when idle:
+(First run: the Artifact Registry repository must exist before you can push to it — run `terraform apply -target=google_artifact_registry_repository.rag_pdf_chatbot` once to create just the repo, then push the image, then run the full `terraform apply` below.)
+
+**2. Deploy with Terraform:**
 
 ```bash
-gcloud run deploy rag-pdf-chatbot \
-  --image=us-central1-docker.pkg.dev/YOUR_PROJECT_ID/rag-pdf-chatbot/rag-pdf-chatbot:latest \
-  --region=us-central1 \
-  --allow-unauthenticated \
-  --min-instances=0 \
-  --max-instances=1 \
-  --memory=2Gi --cpu=2 \
-  --timeout=300 \
-  --set-env-vars=GCP_PROJECT_ID=YOUR_PROJECT_ID,GCP_LOCATION=us-central1,VERTEX_LLM_MODEL_ID=gemini-2.5-flash,VERTEX_EMBEDDING_MODEL_ID=text-embedding-004 \
-  --project=YOUR_PROJECT_ID
+cd infra
+terraform init
+terraform apply \
+  -var="project_id=YOUR_PROJECT_ID" \
+  -var="image_tag=us-central1-docker.pkg.dev/YOUR_PROJECT_ID/rag-pdf-chatbot/rag-pdf-chatbot:latest"
 ```
 
-Grant the Cloud Run runtime service account Vertex AI access once:
+Or copy `terraform.tfvars.example` to `terraform.tfvars` and fill in real values to avoid repeating `-var` flags. `terraform output service_url` prints the live demo URL.
+
+With `min_instance_count = 0` (see `infra/main.tf`), idle Cloud Run compute is approximately $0. Vertex AI and Cloud Build are pay-per-use; Artifact Registry image storage can still cost a few cents per month until deleted.
+
+**Teardown:**
 
 ```bash
-PROJECT_NUMBER=$(gcloud projects describe YOUR_PROJECT_ID --format='value(projectNumber)')
-gcloud projects add-iam-policy-binding YOUR_PROJECT_ID \
-  --member="serviceAccount:${PROJECT_NUMBER}-compute@developer.gserviceaccount.com" \
-  --role="roles/aiplatform.user"
-```
-
-With `--min-instances=0`, idle Cloud Run compute is approximately $0. Vertex AI and Cloud Build are pay-per-use; Artifact Registry image storage can still cost a few cents per month until deleted.
-
-Teardown:
-
-```bash
-gcloud run services delete rag-pdf-chatbot --region=us-central1 --project=YOUR_PROJECT_ID
-gcloud artifacts repositories delete rag-pdf-chatbot --location=us-central1 --project=YOUR_PROJECT_ID
-gcloud services disable aiplatform.googleapis.com run.googleapis.com artifactregistry.googleapis.com cloudbuild.googleapis.com --project=YOUR_PROJECT_ID
-gcloud projects delete YOUR_PROJECT_ID
+cd infra
+terraform destroy -var="project_id=YOUR_PROJECT_ID" -var="image_tag=..."
+gcloud projects delete YOUR_PROJECT_ID  # only if the whole demo project should go too
 ```
 
 ## Example Questions
