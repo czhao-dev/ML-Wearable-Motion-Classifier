@@ -232,12 +232,21 @@ Tests: `pip install -r serve/requirements.txt pytest && pytest tests/`
 
 This project began as an IBM/Coursera deep learning capstone sequence. It has since been reorganized into a clear Python workflow with documented results, reusable helper modules, and proper handling of large data and model artifacts — including catching and fixing a data-leakage bug in the original evaluation methodology (see [Results](#results)), and replacing every pretrained-checkpoint download from IBM's course storage with a genuine from-scratch training run (all four models were retrained end-to-end on a GCP T4 GPU VM).
 
+## MLOps Pipeline
+
+An MLflow-tracked, Prefect-orchestrated retraining pipeline for the PyTorch track (CNN baseline + CNN-ViT hybrid), plus a load test and a drift report against the served model — all actually executed end-to-end on a rented GCP T4 GPU VM, not just written.
+
+- **Experiment tracking (MLflow):** `scripts/05_pytorch_cnn_classifier.py` and `scripts/08_pytorch_cnn_vit_hybrid.py` log hyperparameters, per-epoch train/val loss and accuracy, and the final model to a local MLflow tracking store (`mlruns.db`, SQLite backend). A real retrain run scored **pytorch_cnn 99.42% held-out accuracy** and **pytorch_cnn_vit_hybrid 95.17%** — both close to, but not identical to, the original results table above (99.92% / 97.50%), consistent with ordinary run-to-run training variance rather than a regression.
+- **Orchestration (Prefect):** [`pipeline/retrain_flow.py`](pipeline/retrain_flow.py) chains `train_cnn` → `train_hybrid` → `evaluate` → `register_if_better`, shelling out to the existing numbered scripts rather than reimplementing them. The real run above registered the new `pytorch_cnn` as MLflow Model Registry version 1 (`cnn-vit-satellite-pytorch-cnn`), since 99.42% beat the (empty) prior best — a subsequent worse retrain would *not* register, an intentionally honest no-improvement path. Raw run metrics: [`reports/mlflow_runs_summary.csv`](reports/mlflow_runs_summary.csv).
+- **Load test (locust):** [`serve/locustfile.py`](serve/locustfile.py) run against the live FastAPI server (`pytorch_cnn`, real held-out satellite tiles, 20 concurrent users, 60s) on the same GPU VM: **2,975 `/predict` requests, 0 failures, ~50 req/s, p50 15ms / p95 44ms / p99 63ms**. Full results: [`reports/load_test_stats.csv`](reports/load_test_stats.csv).
+- **Drift monitoring (Evidently):** [`monitoring/generate_drift_report.py`](monitoring/generate_drift_report.py) extracts per-image tabular features (per-channel mean/std, brightness, contrast, and the served model's prediction confidence) and compares a reference batch against a current batch synthetically brightness-shifted 1.6× (standing in for a real lighting/sensor drift). All 9 features registered as drifted (K-S p-values from 1.8×10⁻⁹ to 1.8×10⁻¹¹) — notably, `model_confidence` drifted far less sharply (p = 3.3×10⁻⁴) than the raw pixel statistics, i.e. the model's own confidence is more robust to this shift than the input distribution is. Full report: [`monitoring/reports/drift_report.html`](monitoring/reports/drift_report.html).
+
 ## Future Work
 
 - Validate on a geographically distinct holdout set, beyond the same-distribution validation split used today
 - Add Grad-CAM or attention visualizations for interpretability
 - Export selected plots from model runs into `reports/figures/`
-- Track experiments with MLflow or Weights & Biases
+- Extend MLflow/Prefect orchestration to the Keras track
 - Add a batch `/predict/batch` endpoint to the inference server
 - Add Prometheus metrics (request count, latency histogram) to the server
 
