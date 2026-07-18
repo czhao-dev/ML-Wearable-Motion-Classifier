@@ -4,6 +4,8 @@
 
 A monorepo of ten end-to-end machine learning projects spanning computer vision, large language models, agentic AI and tool use, graph learning, time-series forecasting, model compression, production inference serving, causal inference, and systems-level ML inference engineering. Each project lives in its own subdirectory with independent dependencies, tests, documented results, and a full README.
 
+Every project has its own GitHub Actions test workflow, path-scoped so a push only runs the CI for the project it touches — see the CI badge at the top of each project's README, or the [Actions tab](https://github.com/czhao-dev/ai-ml-design-patterns/actions) for the full run history.
+
 ## Projects at a Glance
 
 | Project | Area | Key Technologies | Standout |
