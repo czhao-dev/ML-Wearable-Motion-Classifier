@@ -1,5 +1,6 @@
 # Model Compression: Pruning, Quantization, and Knowledge Distillation
 
+[![CI](https://github.com/czhao-dev/ai-ml-design-patterns/actions/workflows/test-ml-model-compression.yml/badge.svg)](https://github.com/czhao-dev/ai-ml-design-patterns/actions/workflows/test-ml-model-compression.yml)
 [![Python](https://img.shields.io/badge/python-3.11%2B-blue?logo=python&logoColor=white)](https://www.python.org/)
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.x-EE4C2C?logo=pytorch&logoColor=white)](https://pytorch.org/)
 [![License: Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](../LICENSE)

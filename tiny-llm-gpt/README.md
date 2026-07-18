@@ -1,5 +1,7 @@
 # TinyLLM Lab
 
+[![CI](https://github.com/czhao-dev/ai-ml-design-patterns/actions/workflows/test-tiny-llm-gpt.yml/badge.svg)](https://github.com/czhao-dev/ai-ml-design-patterns/actions/workflows/test-tiny-llm-gpt.yml)
+
 TinyLLM Lab is an educational project for training a small GPT-style language model from scratch. The goal is to understand the complete language-modeling pipeline, including tokenizer training, dataset preprocessing, Transformer implementation, model training, evaluation, text generation, and performance benchmarking.
 
 This project is intentionally small enough to run on consumer hardware while still demonstrating the core ideas behind modern decoder-only large language models.

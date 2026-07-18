@@ -1,5 +1,6 @@
 # Movie Recommender: Graph Features + a Heterogeneous GNN
 
+[![CI](https://github.com/czhao-dev/ai-ml-design-patterns/actions/workflows/test-gnn-movie-recommender.yml/badge.svg)](https://github.com/czhao-dev/ai-ml-design-patterns/actions/workflows/test-gnn-movie-recommender.yml)
 [![Python](https://img.shields.io/badge/Python-3.x-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.x-EE4C2C?logo=pytorch&logoColor=white)](https://pytorch.org/)
 [![PyTorch Geometric](https://img.shields.io/badge/PyTorch%20Geometric-HeteroConv-3C2179)](https://pytorch-geometric.readthedocs.io/)

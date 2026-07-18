@@ -1,5 +1,6 @@
 # Tensor Graph Inference Engine
 
+[![CI](https://github.com/czhao-dev/ai-ml-design-patterns/actions/workflows/test-tensor-graph-inference-engine.yml/badge.svg)](https://github.com/czhao-dev/ai-ml-design-patterns/actions/workflows/test-tensor-graph-inference-engine.yml)
 [![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![NumPy](https://img.shields.io/badge/NumPy-INT8%20inference-013243?logo=numpy&logoColor=white)](https://numpy.org/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)

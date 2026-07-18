@@ -1,5 +1,6 @@
 # Satellite Land Classification with CNNs and Vision Transformers
 
+[![CI](https://github.com/czhao-dev/ai-ml-design-patterns/actions/workflows/test-cnn-vit-satellite-image-classifier.yml/badge.svg)](https://github.com/czhao-dev/ai-ml-design-patterns/actions/workflows/test-cnn-vit-satellite-image-classifier.yml)
 ![License](https://img.shields.io/badge/license-Apache%202.0-blue)
 ![Python](https://img.shields.io/badge/python-3.13-blue)
 ![TensorFlow](https://img.shields.io/badge/TensorFlow-2.21-orange)

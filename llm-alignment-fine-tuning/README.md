@@ -1,5 +1,6 @@
 # LLM Alignment & Fine-Tuning
 
+[![CI](https://github.com/czhao-dev/ai-ml-design-patterns/actions/workflows/test-llm-alignment-fine-tuning.yml/badge.svg)](https://github.com/czhao-dev/ai-ml-design-patterns/actions/workflows/test-llm-alignment-fine-tuning.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](../LICENSE)
 ![Python](https://img.shields.io/badge/python-3.13-blue)
 ![PyTorch](https://img.shields.io/badge/PyTorch-2.8-orange)

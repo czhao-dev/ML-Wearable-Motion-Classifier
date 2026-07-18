@@ -1,5 +1,6 @@
 # Agentic Tool-Use Architecture Bake-Off
 
+[![CI](https://github.com/czhao-dev/ai-ml-design-patterns/actions/workflows/test-agentic-ai-tool-use.yml/badge.svg)](https://github.com/czhao-dev/ai-ml-design-patterns/actions/workflows/test-agentic-ai-tool-use.yml)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/)
 [![Tests: 44 passing](https://img.shields.io/badge/tests-44%20passing-brightgreen.svg)](#getting-started)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](../LICENSE)

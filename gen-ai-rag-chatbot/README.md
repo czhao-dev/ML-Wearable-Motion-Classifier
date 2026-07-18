@@ -1,5 +1,6 @@
 # Vertex AI RAG Document Chatbot
 
+[![CI](https://github.com/czhao-dev/ai-ml-design-patterns/actions/workflows/test-gen-ai-rag-chatbot.yml/badge.svg)](https://github.com/czhao-dev/ai-ml-design-patterns/actions/workflows/test-gen-ai-rag-chatbot.yml)
 [![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
 [![License: Apache 2.0](https://img.shields.io/github/license/czhao-dev/GCP-Vertex-AI-RAG-Chatbot?style=flat-square&color=blue)](LICENSE)
 [![LangChain](https://img.shields.io/badge/LangChain-1C3C3C?style=flat-square)](https://www.langchain.com/)

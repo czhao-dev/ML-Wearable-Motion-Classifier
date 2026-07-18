@@ -1,5 +1,6 @@
 # Churn Predictor: Uplift Modeling for Retention Targeting
 
+[![CI](https://github.com/czhao-dev/ai-ml-design-patterns/actions/workflows/test-churn-predictor.yml/badge.svg)](https://github.com/czhao-dev/ai-ml-design-patterns/actions/workflows/test-churn-predictor.yml)
 [![Python](https://img.shields.io/badge/Python-3.x-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![scikit-learn](https://img.shields.io/badge/scikit--learn-GradientBoosting-F7931E?logo=scikitlearn&logoColor=white)](https://scikit-learn.org/)
 [![EconML](https://img.shields.io/badge/EconML-CausalForestDML-4B8BBE)](https://github.com/py-why/EconML)

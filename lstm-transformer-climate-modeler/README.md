@@ -1,5 +1,6 @@
 # ML Climate Modeling
 
+[![CI](https://github.com/czhao-dev/ai-ml-design-patterns/actions/workflows/test-lstm-transformer-climate-modeler.yml/badge.svg)](https://github.com/czhao-dev/ai-ml-design-patterns/actions/workflows/test-lstm-transformer-climate-modeler.yml)
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue?logo=python&logoColor=white)](pyproject.toml)
 [![TensorFlow](https://img.shields.io/badge/TensorFlow-2.14%2B-orange?logo=tensorflow&logoColor=white)](requirements.txt)
 [![License: Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
