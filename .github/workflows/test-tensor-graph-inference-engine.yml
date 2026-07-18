@@ -1,5 +1,13 @@
-name: test
-on: [push, pull_request]
+name: test (tensor-graph-inference-engine)
+on:
+  push:
+    paths:
+      - "tensor-graph-inference-engine/**"
+      - ".github/workflows/test-tensor-graph-inference-engine.yml"
+  pull_request:
+    paths:
+      - "tensor-graph-inference-engine/**"
+      - ".github/workflows/test-tensor-graph-inference-engine.yml"
 jobs:
   test:
     runs-on: ubuntu-latest

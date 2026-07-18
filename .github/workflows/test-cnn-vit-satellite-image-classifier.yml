@@ -1,5 +1,13 @@
-name: test
-on: [push, pull_request]
+name: test (cnn-vit-satellite-image-classifier)
+on:
+  push:
+    paths:
+      - "cnn-vit-satellite-image-classifier/**"
+      - ".github/workflows/test-cnn-vit-satellite-image-classifier.yml"
+  pull_request:
+    paths:
+      - "cnn-vit-satellite-image-classifier/**"
+      - ".github/workflows/test-cnn-vit-satellite-image-classifier.yml"
 jobs:
   test:
     runs-on: ubuntu-latest

@@ -1,5 +1,13 @@
-name: test
-on: [push, pull_request]
+name: test (gnn-movie-recommender)
+on:
+  push:
+    paths:
+      - "gnn-movie-recommender/**"
+      - ".github/workflows/test-gnn-movie-recommender.yml"
+  pull_request:
+    paths:
+      - "gnn-movie-recommender/**"
+      - ".github/workflows/test-gnn-movie-recommender.yml"
 jobs:
   test:
     runs-on: ubuntu-latest

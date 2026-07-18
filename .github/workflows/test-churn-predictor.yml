@@ -1,11 +1,19 @@
-name: test
-on: [push, pull_request]
+name: test (churn-predictor)
+on:
+  push:
+    paths:
+      - "churn-predictor/**"
+      - ".github/workflows/test-churn-predictor.yml"
+  pull_request:
+    paths:
+      - "churn-predictor/**"
+      - ".github/workflows/test-churn-predictor.yml"
 jobs:
   test:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: gen-ai-rag-chatbot
+        working-directory: churn-predictor
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5

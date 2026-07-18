@@ -1,5 +1,13 @@
-name: test
-on: [push, pull_request]
+name: test (agentic-ai-tool-use)
+on:
+  push:
+    paths:
+      - "agentic-ai-tool-use/**"
+      - ".github/workflows/test-agentic-ai-tool-use.yml"
+  pull_request:
+    paths:
+      - "agentic-ai-tool-use/**"
+      - ".github/workflows/test-agentic-ai-tool-use.yml"
 jobs:
   test:
     runs-on: ubuntu-latest

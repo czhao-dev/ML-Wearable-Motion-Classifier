@@ -1,5 +1,13 @@
-name: test
-on: [push, pull_request]
+name: test (lstm-transformer-climate-modeler)
+on:
+  push:
+    paths:
+      - "lstm-transformer-climate-modeler/**"
+      - ".github/workflows/test-lstm-transformer-climate-modeler.yml"
+  pull_request:
+    paths:
+      - "lstm-transformer-climate-modeler/**"
+      - ".github/workflows/test-lstm-transformer-climate-modeler.yml"
 jobs:
   test:
     runs-on: ubuntu-latest

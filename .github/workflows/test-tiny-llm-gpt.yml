@@ -1,11 +1,19 @@
-name: test
-on: [push, pull_request]
+name: test (tiny-llm-gpt)
+on:
+  push:
+    paths:
+      - "tiny-llm-gpt/**"
+      - ".github/workflows/test-tiny-llm-gpt.yml"
+  pull_request:
+    paths:
+      - "tiny-llm-gpt/**"
+      - ".github/workflows/test-tiny-llm-gpt.yml"
 jobs:
   test:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: churn-predictor
+        working-directory: tiny-llm-gpt
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5

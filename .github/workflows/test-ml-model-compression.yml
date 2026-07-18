@@ -1,5 +1,13 @@
-name: test
-on: [push, pull_request]
+name: test (ml-model-compression)
+on:
+  push:
+    paths:
+      - "ml-model-compression/**"
+      - ".github/workflows/test-ml-model-compression.yml"
+  pull_request:
+    paths:
+      - "ml-model-compression/**"
+      - ".github/workflows/test-ml-model-compression.yml"
 jobs:
   test:
     runs-on: ubuntu-latest

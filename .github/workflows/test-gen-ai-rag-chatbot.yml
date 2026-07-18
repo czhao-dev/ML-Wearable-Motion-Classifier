@@ -1,11 +1,19 @@
-name: test
-on: [push, pull_request]
+name: test (gen-ai-rag-chatbot)
+on:
+  push:
+    paths:
+      - "gen-ai-rag-chatbot/**"
+      - ".github/workflows/test-gen-ai-rag-chatbot.yml"
+  pull_request:
+    paths:
+      - "gen-ai-rag-chatbot/**"
+      - ".github/workflows/test-gen-ai-rag-chatbot.yml"
 jobs:
   test:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: tiny-llm-gpt
+        working-directory: gen-ai-rag-chatbot
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5

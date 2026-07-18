@@ -1,5 +1,13 @@
-name: test
-on: [push, pull_request]
+name: test (llm-alignment-fine-tuning)
+on:
+  push:
+    paths:
+      - "llm-alignment-fine-tuning/**"
+      - ".github/workflows/test-llm-alignment-fine-tuning.yml"
+  pull_request:
+    paths:
+      - "llm-alignment-fine-tuning/**"
+      - ".github/workflows/test-llm-alignment-fine-tuning.yml"
 jobs:
   test:
     runs-on: ubuntu-latest
