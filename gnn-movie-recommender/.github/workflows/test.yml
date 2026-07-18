@@ -1,0 +1,20 @@
+name: test
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: gnn-movie-recommender
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Run tests
+        # test_imdb_hetero_data.py needs results/gnn_export/, produced by running
+        # the full igraph pipeline against the real (gitignored) IMDb dataset --
+        # not available in CI, so it's excluded here rather than faked.
+        run: pytest -q --ignore=tests/test_imdb_hetero_data.py
