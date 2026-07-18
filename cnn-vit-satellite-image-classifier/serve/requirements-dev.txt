@@ -1,0 +1,4 @@
+# Load testing only -- not installed in the production Docker image
+# (serve/Dockerfile installs serve/requirements.txt, not this file).
+-r requirements.txt
+locust>=2.29.0
