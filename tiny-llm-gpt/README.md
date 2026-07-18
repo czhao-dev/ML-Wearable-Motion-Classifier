@@ -296,6 +296,30 @@ output:
   log_dir: experiments/runs/tiny/logs
 ```
 
+## Distributed Training (DDP)
+
+[`scripts/train_ddp.py`](scripts/train_ddp.py) adds `torch.distributed`/`DistributedDataParallel` training, additive to `scripts/train.py` rather than a rewrite of it. Launch with `torchrun`:
+
+```bash
+torchrun --nproc_per_node=2 scripts/train_ddp.py --config configs/small.yaml
+```
+
+By design, every rank targets the *same* physical GPU (`torch.cuda.set_device(local_rank % torch.cuda.device_count())`, which collapses to device 0 for every rank when there's only one GPU) — this is a DDP-mechanics-and-throughput demo, not a multi-GPU scaling run. Each rank trains on its own contiguous shard of the token stream (`shard_offset_bounds()`, unit-tested in `tests/test_ddp_sharding.py` since real multi-process behavior isn't something GitHub Actions' GPU-less runners can exercise), and only rank 0 logs/checkpoints.
+
+**Real run on a rented GCP T4 VM** (Small config, 2,000 steps — a bounded mechanics comparison, not the full 20,000-step scaling run from [Example Training Curve](#example-training-curve)):
+
+| Run | tokens/sec (final) | train_loss @ step 1999 | val_loss @ step 1999 |
+| --- | --- | --- | --- |
+| 1 process (`scripts/train.py`) | 29,631 | 2.489 | 2.383 |
+| 2 processes, 1 GPU, gloo (`scripts/train_ddp.py --backend gloo`) | 27,826 | 2.226 | 2.203 |
+
+(2 processes, 1 GPU, NCCL isn't in the table — it doesn't run at all, see below.)
+
+Two genuine findings, not estimates:
+
+- **NCCL refuses to run.** `torchrun --nproc_per_node=2 ... --backend nccl` (the default) fails immediately with `ncclInvalidUsage: Duplicate GPU detected: rank 1 and rank 0 both on CUDA device 0` — NCCL's collective algorithms assume one rank per device and reject two ranks sharing one. `--backend gloo` (this script's fallback flag, `--backend gloo`) works because gloo's collectives are CPU-mediated and don't have that restriction. This is exactly the rough edge the `--backend` flag exists for.
+- **Slower aggregate throughput, faster per-step convergence.** 2-process/1-GPU gloo DDP is ~6% *slower* in aggregate tokens/sec than the 1-process baseline — both ranks contend for the same GPU's compute and memory bandwidth, and gloo's CPU-mediated gradient all-reduce adds overhead a real NCCL multi-GPU setup wouldn't have. But at the *same step count*, DDP's loss is lower: each DDP step gradient-averages across 2 ranks' batches (an effective batch size of 64 vs. the baseline's 32), so each optimizer step is a lower-variance gradient estimate and converges in fewer steps — it just doesn't convert into a wall-clock win here because there's no second physical GPU to actually parallelize onto. On real multi-GPU hardware, both effects (throughput and per-step convergence) would work in the same direction instead of trading off.
+
 ## Text Generation
 
 Generate text from a trained checkpoint:
@@ -455,7 +479,8 @@ This project demonstrates practical experience with:
 * PyTorch model implementation
 * Training loop design
 * GPU/MPS/CPU device handling
-* Cloud GPU training (AWS EC2)
+* Cloud GPU training (AWS EC2, GCP T4)
+* Distributed data-parallel (DDP) training with `torchrun`
 * Checkpointing and reproducibility
 * Evaluation and perplexity measurement
 * Text generation algorithms

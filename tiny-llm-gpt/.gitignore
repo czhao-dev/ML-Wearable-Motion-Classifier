@@ -19,3 +19,13 @@ experiments/results/*
 *.pt
 *.bin
 *.jsonl
+
+# DDP demo: commit the two JSONL logs (1-process baseline vs. 2-process DDP
+# on one GPU) as real evidence, everything else in these dirs (checkpoints)
+# stays gitignored per the rules above.
+!experiments/runs/small-baseline/
+!experiments/runs/small-baseline/logs/
+!experiments/runs/small-baseline/logs/train_log.jsonl
+!experiments/runs/small-ddp/
+!experiments/runs/small-ddp/logs/
+!experiments/runs/small-ddp/logs/train_log.jsonl
