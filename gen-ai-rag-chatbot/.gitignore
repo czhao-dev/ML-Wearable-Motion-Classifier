@@ -29,3 +29,10 @@ chroma_db/
 outputs/
 dist/
 build/
+
+# Terraform
+infra/.terraform/
+infra/*.tfstate
+infra/*.tfstate.backup
+infra/terraform.tfvars
+infra/override.tf

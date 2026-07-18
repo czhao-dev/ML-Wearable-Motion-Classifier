@@ -1,0 +1,3 @@
+project_id = "YOUR_PROJECT_ID"
+region     = "us-central1"
+image_tag  = "us-central1-docker.pkg.dev/YOUR_PROJECT_ID/rag-pdf-chatbot/rag-pdf-chatbot:latest"
