@@ -16,7 +16,7 @@ This repository is a portfolio-ready reference implementation: a runnable docume
 
 ## Demo
 
-**Live demo:** https://rag-pdf-chatbot-715060982814.us-central1.run.app
+**Live demo:** https://rag-pdf-chatbot-jzddchwu5q-uc.a.run.app
 
 Run the app locally or deploy it to Cloud Run, upload a document, and ask a question about its contents.
 
@@ -210,6 +210,8 @@ terraform apply \
 Or copy `terraform.tfvars.example` to `terraform.tfvars` and fill in real values to avoid repeating `-var` flags. `terraform output service_url` prints the live demo URL.
 
 With `min_instance_count = 0` (see `infra/main.tf`), idle Cloud Run compute is approximately $0. Vertex AI and Cloud Build are pay-per-use; Artifact Registry image storage can still cost a few cents per month until deleted.
+
+**Known quirk:** `terraform plan` shows a perpetual no-op diff on `google_cloud_run_v2_service`'s `scaling` block (`manual_instance_count` toggling between `0` and `null`) — this is an upstream `terraform-provider-google` echo of a field not present in this config, not a real drift; the deployed service is unaffected and re-applying doesn't change anything observable.
 
 **Teardown:**
 

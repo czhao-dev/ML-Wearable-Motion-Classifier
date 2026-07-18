@@ -29,7 +29,7 @@ Every project has its own GitHub Actions test workflow, path-scoped so a push on
 
 A deployed RAG document Q&A app: upload a PDF, TXT, Markdown, CSV, or DOCX file and ask questions grounded in its content.
 
-**Live demo:** https://rag-pdf-chatbot-715060982814.us-central1.run.app
+**Live demo:** https://rag-pdf-chatbot-jzddchwu5q-uc.a.run.app
 
 - **RAG pipeline:** LangChain document loaders → `RecursiveCharacterTextSplitter` → Vertex AI `text-embedding-004` embeddings → Chroma vector store → `RetrievalQA` chain → Gemini 2.5 Flash answer with source grounding.
 - **Deployment:** Containerized with Docker and deployed to GCP Cloud Run with scale-to-zero cost controls; credentials handled via Application Default Credentials for local development.
