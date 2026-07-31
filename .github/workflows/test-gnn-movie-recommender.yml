@@ -25,4 +25,4 @@ jobs:
         # test_imdb_hetero_data.py needs results/gnn_export/, produced by running
         # the full igraph pipeline against the real (gitignored) IMDb dataset --
         # not available in CI, so it's excluded here rather than faked.
-        run: pytest -q --ignore=tests/test_imdb_hetero_data.py
+        run: python -m pytest -q --ignore=tests/test_imdb_hetero_data.py
