@@ -1,0 +1,2 @@
+# Generated reports shouldn't count toward GitHub's language stats.
+*/monitoring/reports/*.html linguist-generated=true
