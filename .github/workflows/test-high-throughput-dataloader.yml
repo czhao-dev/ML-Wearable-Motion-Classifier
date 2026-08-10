@@ -1,0 +1,39 @@
+name: test (high-throughput-dataloader)
+on:
+  push:
+    paths:
+      - "high-throughput-dataloader/**"
+      - ".github/workflows/test-high-throughput-dataloader.yml"
+  pull_request:
+    paths:
+      - "high-throughput-dataloader/**"
+      - ".github/workflows/test-high-throughput-dataloader.yml"
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: high-throughput-dataloader
+    strategy:
+      fail-fast: false
+      matrix:
+        preset: [debug, asan, ubsan, tsan]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install LLVM/Clang
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang
+
+      - name: Configure
+        env:
+          CC: clang
+          CXX: clang++
+        run: cmake --preset ${{ matrix.preset }}
+
+      - name: Build
+        run: cmake --build --preset ${{ matrix.preset }} -j
+
+      - name: Test
+        run: ctest --preset ${{ matrix.preset }}
