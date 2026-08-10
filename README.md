@@ -2,7 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-A monorepo of ten end-to-end machine learning projects spanning computer vision, large language models, agentic AI and tool use, graph learning, time-series forecasting, model compression, production inference serving, causal inference, and systems-level ML inference engineering. Each project lives in its own subdirectory with independent dependencies, tests, documented results, and a full README.
+A monorepo of eleven end-to-end machine learning projects spanning computer vision, large language models, agentic AI and tool use, graph learning, time-series forecasting, model compression, production inference serving, causal inference, systems-level ML inference engineering, and high-throughput data loading. Each project lives in its own subdirectory with independent dependencies, tests, documented results, and a full README.
 
 Every project has its own GitHub Actions test workflow, path-scoped so a push only runs the CI for the project it touches — see the CI badge at the top of each project's README, or the [Actions tab](https://github.com/czhao-dev/ai-ml-design-patterns/actions) for the full run history.
 
@@ -20,6 +20,7 @@ Every project has its own GitHub Actions test workflow, path-scoped so a push on
 | [GNN Movie Recommender](gnn-movie-recommender/README.md) | Graph ML | PyTorch Geometric, igraph | Heterogeneous GNN benchmarked at full IMDb scale (240K movies) as well as a small sample; top-N recommendation on MovieLens |
 | [LSTM Transformer Climate Modeler](lstm-transformer-climate-modeler/README.md) | Time-Series | TensorFlow, Python | Pure-TF LSTM + Transformer from scratch (no Keras); 7-day multi-step forecasting; 56 unit tests |
 | [Tensor Graph Inference Engine](tensor-graph-inference-engine/README.md) | Systems / Inference Engine | Python, NumPy | Static-graph INT8 engine with a hand-rolled greedy arena planner cutting activation memory ~37% (39,904 vs. 63,072 bytes), fully regression-pinned |
+| [High-Throughput Dataloader](high-throughput-dataloader/README.md) | Systems / Data Loading | C++20, CMake, GoogleTest, ThreadSanitizer | Near-linear worker scaling (25.4k → 161.1k samples/sec at 1→8 workers), leads PyTorch `DataLoader`'s steady-state throughput by 4–5x at every worker count; 53 tests green under ASan/UBSan/TSan |
 
 ---
 
@@ -161,6 +162,19 @@ A from-scratch, static-graph INT8 neural-network inference engine: an offline co
 - **Originally built in C++** (header-only, CPU-only) as a systems exercise, then fully migrated to a pure-Python/NumPy implementation preserving the identical binary artifact format, algorithm, and regression-pinned constants.
 
 **Stack:** Python · NumPy · pytest
+
+---
+
+### [High-Throughput Dataloader](high-throughput-dataloader/README.md)
+
+A from-scratch, multi-worker data pipeline in C++20 that generates synthetic training data and feeds a consumer at full throughput, with deterministic, resumable, shardable iteration — tackling the case where training throughput is bound by data supply, not the accelerator.
+
+- **Pipeline:** a shared `IndexStream` feeds an N-worker pool through a bounded MPMC queue with backpressure into a collate stage, with **as-ready** (fastest) or **ordered** (bounded reorder buffer, position-keyed) delivery modes.
+- **Determinism and resumability as tested contracts:** a precomputed, seeded full-epoch Fisher-Yates shuffle makes shuffle state a pure function of `(seed, epoch, num_samples)`; the sharpest test in the suite kills a pipeline mid-epoch, drains everything generated-but-unconsumed, and checks a fresh pipeline resuming at that position reproduces exactly the missing suffix.
+- **Concurrency correctness:** worker-count invariance (1/2/4/8 workers produce byte-for-byte identical output in ordered mode) and shard disjointness/coverage are direct tests, not inferences from throughput; the full suite — 53 tests across 17 suites — runs clean under ThreadSanitizer as well as ASan/UBSan.
+- **Benchmarked, not asserted:** near-linear worker scaling (25.4k → 161.1k samples/sec at 1→8 workers); a starvation-vs-worker-count sweep that locates the knee (4 workers) past which more parallelism stops helping this workload; a PyTorch `DataLoader` baseline head-to-head where this project leads steady-state throughput by 4–5x at every worker count, with the gap traced to `std::thread` workers avoiding PyTorch's per-epoch process-startup and per-batch IPC costs.
+
+**Stack:** C++20 · CMake · GoogleTest/GoogleBenchmark · ThreadSanitizer/ASan/UBSan
 
 ---
 
