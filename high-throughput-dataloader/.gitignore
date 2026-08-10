@@ -1,0 +1,9 @@
+build/
+build-*/
+.cache/
+compile_commands.json
+*.o
+*.obj
+.DS_Store
+.venv-bench/
+__pycache__/
